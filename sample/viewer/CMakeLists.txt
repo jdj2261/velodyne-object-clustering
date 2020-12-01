@@ -23,7 +23,7 @@ set( Boost_USE_MULTITHREADED ON ) # Multi Thread Libraries ( *-mt-* )
 set( Boost_USE_STATIC_RUNTIME OFF ) # Static Runtime Libraries ( *-s* )
 find_package( Boost COMPONENTS system date_time regex )
 
-find_package(PCL 1.7 REQUIRED COMPONENTS common io visualization)
+find_package(PCL 1.7 REQUIRED)
 add_definitions(${PCL_DEFINITIONS})
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -126,6 +126,9 @@ if( OpenCV_FOUND AND ( PCAP_FOUND OR Boost_FOUND ) )
   target_link_libraries( viewer ${PCAP_LIBRARIES} )
   target_link_libraries( viewer ${OpenCV_LIBS} )
   target_link_libraries( viewer ${PCL_LIBRARIES} )
+  target_link_libraries( viewer ${catkin_LIBRARIES} )
+
+
 else()
   message( WARNING "VelodyneCapture need at least either Boost or PCAP." )
 endif()

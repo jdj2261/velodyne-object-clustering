@@ -1,0 +1,3 @@
+/home/djjin/tmp/velodyne/VelodyneCapture/sample/simple/build/CMakeFiles/rebuild_cache.dir
+/home/djjin/tmp/velodyne/VelodyneCapture/sample/simple/build/CMakeFiles/simple.dir
+/home/djjin/tmp/velodyne/VelodyneCapture/sample/simple/build/CMakeFiles/edit_cache.dir

@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #ifdef HAVE_BOOST
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>

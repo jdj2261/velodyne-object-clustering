@@ -1,18 +1,25 @@
 cmake_minimum_required( VERSION 3.6 )
 
+# Create Project
+project( velodyne_viewer )
+add_definitions(-std=c++11)
 # Require C++11
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_CXX_EXTENSIONS OFF )
 
-# Create Project
-project( sample )
-add_executable( viewer VelodyneCapture.h main.cpp )
+# include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS})
+
+
 
 # Set StartUp Project
-set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "viewer" )
+set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT "velodyne_viewer" )
 
 # Find Packages
+
+# Try to find Point Cloud Library
+find_package(PCL 1.8 REQUIRED)
+
 # Find Package Thread
 find_package( Threads REQUIRED )
 
@@ -23,11 +30,6 @@ set( Boost_USE_MULTITHREADED ON ) # Multi Thread Libraries ( *-mt-* )
 set( Boost_USE_STATIC_RUNTIME OFF ) # Static Runtime Libraries ( *-s* )
 find_package( Boost COMPONENTS system date_time regex )
 
-find_package(PCL 1.7 REQUIRED)
-add_definitions(${PCL_DEFINITIONS})
-include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-
 # If Direct Capture from Sensors, VelodyneCapture are required Boost.Asio.
 # Please Define HAVE_BOOST in Preprocessor.
 set( HAVE_BOOST )
@@ -37,7 +39,6 @@ endif()
 
 # Find Package PCAP
 set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_MODULE_PATH} )
-set( PCAP_DIR "C:/Program Files/WpdPack" )
 find_package( PCAP )
 
 # Disable sleep while reading a pcap
@@ -107,28 +108,37 @@ endif()
 # Set Properties
 if( OpenCV_FOUND AND ( PCAP_FOUND OR Boost_FOUND ) )
   # Additional Include Directories
-  include_directories( ${Boost_INCLUDE_DIRS} )
-  include_directories( ${PCAP_INCLUDE_DIRS} )
-  include_directories( ${OpenCV_INCLUDE_DIRS} )
+  include_directories( include ${Boost_INCLUDE_DIRS} ${PCAP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+  # include_directories( include/process ${Boost_INCLUDE_DIRS} ${PCAP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} )
+  # include_directories( include/render ${Boost_INCLUDE_DIRS} ${PCAP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} )
+  # include_directories( include/velodyne ${Boost_INCLUDE_DIRS} ${PCAP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+  include_directories( src ${Boost_INCLUDE_DIRS} ${PCAP_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
   # Add Definitions
   add_definitions( ${Boost_LIB_DIAGNOSTIC_DEFINITIONS} )
   add_definitions( ${HAVE_BOOST} )
   add_definitions( ${HAVE_PCAP} )
+  add_definitions(${PCL_DEFINITIONS})
 
   # Additional Library Directories
   link_directories( ${Boost_LIBRARY_DIRS} )
   link_directories( ${OpenCV_LIB_DIR} )
+  link_directories(${PCL_LIBRARY_DIRS})
+  link_directories(include)
+
+  file(GLOB SOURCE_FILES include/*.hpp include/process/*.hpp include/render/*.hpp include/velodyne/*.hpp src/*.cpp src/process/*.cpp src/render/*.cpp)
+  add_executable( ${CMAKE_PROJECT_NAME} ${SOURCE_FILES} )
+
+  list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4")
 
   # Additional Dependencies
-  target_link_libraries( viewer ${CMAKE_THREAD_LIBS_INIT} )
-  target_link_libraries( viewer ${Boost_LIBRARIES} )
-  target_link_libraries( viewer ${PCAP_LIBRARIES} )
-  target_link_libraries( viewer ${OpenCV_LIBS} )
-  target_link_libraries( viewer ${PCL_LIBRARIES} )
-  target_link_libraries( viewer ${catkin_LIBRARIES} )
-
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} )
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} )
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${PCAP_LIBRARIES} )
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${OpenCV_LIBS} )
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${PCL_LIBRARIES} )
+  target_link_libraries( ${CMAKE_PROJECT_NAME} ${catkin_LIBRARIES} )
 
 else()
-  message( WARNING "VelodyneCapture need at least either Boost or PCAP." )
+  message( WARNING "velodyne_viewer need at least either Boost or PCAP." )
 endif()

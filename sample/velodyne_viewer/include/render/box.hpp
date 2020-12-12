@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BOX_HPP
 #define BOX_HPP
 #include <Eigen/Geometry> 
@@ -19,5 +20,7 @@ struct Box
 	float x_max;
 	float y_max;
 	float z_max;
+    int x_mid;
+    int y_mid;
 };
 #endif

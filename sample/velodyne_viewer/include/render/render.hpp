@@ -2,6 +2,7 @@
 // Functions and structs used to render the enviroment
 // such as cars and the highway
 
+#pragma once
 #ifndef RENDER_H
 #define RENDER_H
 
@@ -24,9 +25,9 @@ struct Color
 struct Vect3
 {
 
-    double x, y, z;
+    float x, y, z;
 
-    Vect3(double setX, double setY, double setZ)
+    Vect3(float setX, float setY, float setZ)
         : x(setX), y(setY), z(setZ)
     {
     }

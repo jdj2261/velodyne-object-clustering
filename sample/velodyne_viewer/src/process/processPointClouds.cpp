@@ -31,41 +31,41 @@ void ProcessPointClouds<PointT>::test()
 template<typename PointT>
 void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers, typename pcl::PointCloud<PointT>::Ptr& cloud)
 {
-   PointT point;
+    PointT point;
 
-   for( const velodyne::Laser& laser : lasers ){
-       const double distance = static_cast<double>( laser.distance );
-       const double azimuth  = laser.azimuth  * CV_PI / 180.0;
-       const double vertical = laser.vertical * CV_PI / 180.0;
+    for( const velodyne::Laser& laser : lasers ){
+        const double distance = static_cast<double>( laser.distance );
+        const double azimuth  = laser.azimuth  * CV_PI / 180.0;
+        const double vertical = laser.vertical * CV_PI / 180.0;
 
-       float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) );
-       float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) );
-       float z = static_cast<float>( ( distance * std::sin( vertical ) ) );
-       float i = static_cast<unsigned int>(laser.intensity);
+        float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) ) / 100;
+        float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) ) / 100;
+        float z = static_cast<float>( ( distance * std::sin( vertical ) ) ) / 100;
+        float i = static_cast<unsigned int>(laser.intensity);
 
-       if( x == 0.0f && y == 0.0f && z == 0.0f ){
-           x = std::numeric_limits<float>::quiet_NaN();
-           y = std::numeric_limits<float>::quiet_NaN();
-           z = std::numeric_limits<float>::quiet_NaN();
-       }
+        if( x == 0.0f && y == 0.0f && z == 0.0f ){
+            x = std::numeric_limits<float>::quiet_NaN();
+            y = std::numeric_limits<float>::quiet_NaN();
+            z = std::numeric_limits<float>::quiet_NaN();
+        }
 
-       point.x = x;
-       point.y = y;
-       point.z = z;
-       point.intensity = i;
+        point.x = x;
+        point.y = y;
+        point.z = z;
+        point.intensity = i;
 
-       cloud->push_back(point);
-   }
+        cloud->push_back(point);
+    }
 
-   cloud->width = cloud->points.size();
-   //        cout << "Number of lasers:" << lasers.size() << endl;
-   cloud->height = 1;
-   cloud->points.resize (cloud->width * cloud->height);
-   cloud->is_dense = true;
+    cloud->width = cloud->points.size();
+    //        cout << "Number of lasers:" << lasers.size() << endl;
+    cloud->height = 1;
+    cloud->points.resize (cloud->width * cloud->height);
+    cloud->is_dense = true;
 }
 
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud, float filterRes, const Eigen::Vector4f& minPoint, const Eigen::Vector4f& maxPoint)
+typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud, float filterRes, const Vect3 minPoint, const Vect3 maxPoint)
 {
 
     // Time segmentation process
@@ -76,57 +76,31 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
 
     // // Convert the points to voxel grid points
 
-    // pcl::VoxelGrid<pcl::PointXYZI> vg;
-    // vg.setInputCloud (cloud);
-    // vg.setLeafSize (0.0005, 0.0005, 0.0005);
-    // vg.setDownsampleAllData (true);
-    // vg.filter (*cloud_filtered);
-    // std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
+//    pcl::VoxelGrid<pcl::PointXYZI> vg;
+//    vg.setInputCloud (cloud);
+//    vg.setLeafSize (0.005, 0.005, 0.005);
+//    vg.setDownsampleAllData (true);
+//    vg.filter (*cloud_filtered);
+//    std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
 
     pcl::PassThrough<pcl::PointXYZI> pass;
     pass.setInputCloud (cloud);
     pass.setFilterFieldName ("x");
-    pass.setFilterLimits (-1000, 1000);   // -2m ~ 2m
+    pass.setFilterLimits (minPoint.x, maxPoint.x);   // -2m ~ 2m
     pass.setFilterLimitsNegative (false);
     pass.filter (*cloud_filtered);
 
     pass.setInputCloud (cloud_filtered);
     pass.setFilterFieldName ("y");
-    pass.setFilterLimits (-5000, 5000);  // 0 ~ 10m
+    pass.setFilterLimits (minPoint.y, maxPoint.y);  // 0 ~ 10m
     pass.setFilterLimitsNegative (false);
     pass.filter (*cloud_filtered);
 
     pass.setInputCloud (cloud_filtered);
     pass.setFilterFieldName ("z");
-    pass.setFilterLimits (-180, 200);  // 0 ~ 1m
+    pass.setFilterLimits (minPoint.z, maxPoint.z);  // 0 ~ 1m
     pass.setFilterLimitsNegative (false);
     pass.filter (*cloud_filtered);
-
-    // Crop the scene to create ROI
-    // pcl::CropBox<PointT> roi;
-    // roi.setMin(minPoint);
-    // roi.setMax(maxPoint);
-    // roi.setInputCloud(cloud_filtered);
-    // roi.filter(*cloud_filtered);
-    // std::cerr << "ROI " << cloud_filtered->points.size () << std::endl;
-
-    // //Remove all the points from roof
-    // std::vector<int> indices;
-    // pcl::CropBox<PointT> roof(true);
-    // roof.setMin(Eigen::Vector4f(-1500,-1700,-1000,1));
-    // roof.setMax(Eigen::Vector4f(2600,1700,4000,1));
-    // roof.setInputCloud(cloud_filtered);
-    // roof.filter(indices);
-
-    // pcl::PointIndices::Ptr inliers (new pcl::PointIndices());
-    // for(int point:indices)
-    // 	inliers->indices.push_back(point);
-
-    // pcl::ExtractIndices<PointT> extract;
-    // extract.setInputCloud(cloud_filtered);
-    // extract.setIndices(inliers);
-    // extract.setNegative(true);
-    // extract.filter(*cloud_filtered);
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
@@ -138,7 +112,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
 template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(
         const pcl::PointIndices::Ptr& inliers, const typename pcl::PointCloud<PointT>::Ptr& cloud) {
-  // Create two new point clouds, one cloud with obstacles and other with segmented plane
+    // Create two new point clouds, one cloud with obstacles and other with segmented plane
     typename pcl::PointCloud<PointT>::Ptr obstacle_cloud(new pcl::PointCloud<PointT>());
     typename pcl::PointCloud<PointT>::Ptr plane_cloud(new pcl::PointCloud<PointT>());
 
@@ -166,7 +140,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     auto startTime = std::chrono::steady_clock::now();
 
     /*** PCL IMPLEMENTATION START ***/
-	// Create the segmentation object
+    // Create the segmentation object
     pcl::SACSegmentation<PointT> seg;
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
@@ -256,6 +230,8 @@ Box ProcessPointClouds<PointT>::BoundingBox(const typename pcl::PointCloud<Point
     box.x_max = maxPoint.x;
     box.y_max = maxPoint.y;
     box.z_max = maxPoint.z;
+    box.x_mid = box.x_min + (box.x_max - box.x_min)/2 ;
+    box.y_mid = box.y_min + (box.y_max - box.y_min)/2 ;
 
     return box;
 }

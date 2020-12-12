@@ -15,6 +15,7 @@
 // Copyright (c) 2017 Tsukasa SUGIURA
 // t.sugiura0204@gmail.com
 
+#pragma once
 #ifndef VELODYNE_CAPTURE_H
 #define VELODYNE_CAPTURE_H
 

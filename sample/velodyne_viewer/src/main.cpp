@@ -2,75 +2,91 @@
 // Velodyne Object Tracking using PCL
 // for exploring self-driving car sensors
 
-/**
- * Developer: Daejong Jin
+/******************************************************************************
+ *
+ * Developer: Daejong Jin (wlseoeo@gmail.com)
  * Date: 12/03/2020
+ *
  */
+#include "main.hpp"
+// Include VelodyneCapture Header
+#include "velodyne/velodyneCapture.hpp"
+#include "render/render.hpp"
+#include "process/processPointClouds.cpp"
 
-#include <main.hpp>
-// #include <process/processPointClouds.hpp>
-#include <process/processPointClouds.cpp>
 
 // To make 3d Boxing for clustered points
-void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud) 
+void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
     constexpr float kFilterResolution = 10;
     const Vect3 MinPoint(-10.0f, -20.0f, -1.5f);
-    const Vect3 MaxPoint(10.0f, 1.0f, 4.0f);
+    const Vect3 MaxPoint(10.0f, 2.0f, 4.0f);
 
-//    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
+    //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
     auto filter_cloud = pcd_processor->FilterCloud(input_cloud, kFilterResolution, MinPoint, MaxPoint);
-    
+
     renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
 
-    constexpr int kMaxIterations = 100;
-    constexpr float kDistanceThreshold = 0.2;
+    constexpr int kMaxIterations = 500;
+    constexpr float kDistanceThreshold = 0.01;
     auto segment_cloud = pcd_processor->SegmentPlane(filter_cloud, kMaxIterations, kDistanceThreshold);
 
-        // render obstacles point cloud with red
-    // renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 0, 0));
+    // render obstacles point cloud with red
+    //    renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 0, 0));
 
-    constexpr float kClusterTolerance = 1;
-    constexpr int kMinSize = 10;
+    constexpr float kClusterTolerance = 1.0;
+    constexpr int kMinSize = 5;
     constexpr int kMaxSize = 5000;
     auto cloud_clusters = pcd_processor->Clustering(segment_cloud.first, kClusterTolerance, kMinSize, kMaxSize);
 
-    int cluster_ID = 1;
+    int cluster_ID = 0;
     std::vector<Color> colors = {Color(1, 0, 0), Color(0, 0, 1), Color(0.5, 0, 1)};
+
     int num_of_colors = colors.size();
 
-    Box host_box = {-1.3, -1.7, -1.5, 1.3, 1.7, 0.2};
-    renderBox(viewer, host_box, 0, Color(0.5, 0, 1), 0.8);
+    Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, 0.2};
+    renderBox(viewer, host_box, -1, Color(0.5, 0, 1), 0.8);
 
-    constexpr float kBBoxMinHeight = 0.0075;
-
+    constexpr float kBBoxMinHeight = 0.75;
+    constexpr float kBBoxBound = 0.75;
 
     for(const auto& cluster : cloud_clusters) {
-        std::cout << "cluster size ";
-        pcd_processor->numPoints(cluster);
+        //        std::cout << "cluster size ";
+        //        pcd_processor->numPoints(cluster);
 
-    //    renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
+//            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
 
-        Box box = pcd_processor->BoundingBox(cluster);
+        pcl::PointXYZI minPoint, maxPoint;
+        pcl::getMinMax3D(*cluster, minPoint, maxPoint);
+
+        Box box = pcd_processor->BoundingBox(minPoint, maxPoint);
         pcl::PointXYZ test_point;
         test_point.x = box.x_mid;
         test_point.y = box.y_mid;
         test_point.z = 1.0;
         // Filter out some cluster with little points and shorter in height
-        if (box.z_max - box.z_min >= kBBoxMinHeight || cluster->points.size() >= kMinSize * 2)
+        if (cluster->points.size() >= kMinSize )
         {
-            renderBox(viewer, box, cluster_ID);
-            viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+            if (maxPoint.x - minPoint.x < host_box.x_max- host_box.x_min &&
+                    maxPoint.y - minPoint.y < host_box.y_max- host_box.y_min &&
+                    maxPoint.z - minPoint.z < host_box.z_max- host_box.z_min)
+            {
+                continue;
+            }
+            else
+            {
+                renderBox(viewer, box, cluster_ID);
+                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+            }
         }
-//        cout << cluster_ID << endl;
+
+        //        cout << cluster_ID << endl;
         cluster_ID++;
     }
+    viewer->addText(" Cluster: " + std::to_string(cluster_ID), 5, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
 
-    viewer->addText(" Cluster: " + std::to_string(cluster_ID), 5, 5, 20, 1, 1, 1, "cluster_ID");
-
-
-        //render ground plane with green
-    // renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
+    //render ground plane with green
+//    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
     // if (!viewer->updatePointCloud<pcl::PointXYZI>(input_cloud,"raw_cloud"))
     // {
@@ -150,7 +166,7 @@ int main(int argc, char *argv[])
     // Open VelodyneCapture that retrieve from PCAP
     // velodyne::VLP16Capture capture(pcap);
     velodyne::HDL32ECapture capture( pcap) ;
-  
+
     if (!capture.isOpen())
     {
         std::cerr << "Can't open VelodyneCapture." << std::endl;

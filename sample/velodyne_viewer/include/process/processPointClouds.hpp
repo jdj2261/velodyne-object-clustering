@@ -1,8 +1,5 @@
 // PCL lib Functions for processing point clouds
-
 #pragma once
-#ifndef PROCESSPOINTCLOUDS_H
-#define PROCESSPOINTCLOUDS_H
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
@@ -21,9 +18,9 @@
 #include <chrono>
 #include <unordered_set>
 
-#include <velodyne/velodyneCapture.hpp>
-#include <render/box.hpp>
-#include <render/render.hpp>
+#include "velodyne/velodyneCapture.hpp"
+#include "render/box.hpp"
+#include "render/render.hpp"
 #include <opencv2/opencv.hpp>
 
 
@@ -34,11 +31,7 @@ public:
     //constructor
     ProcessPointClouds();
     //deconstructor
-    virtual ~ProcessPointClouds()
-    {
-    }
-
-    void test();
+    virtual ~ProcessPointClouds(){};
 
     void laser2pcd (std::vector<velodyne::Laser> lasers, typename pcl::PointCloud<PointT>::Ptr& cloud);
     typename pcl::PointCloud<PointT>::Ptr FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud, float filterRes, const Vect3 minPoint, const Vect3 maxPoint);
@@ -46,8 +39,7 @@ public:
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> SegmentPlane(const typename pcl::PointCloud<PointT>::Ptr& cloud, const int maxIterations, const float distanceThreshold);
     std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(const typename pcl::PointCloud<PointT>::Ptr& cloud, float clusterTolerance, int minSize, int maxSize);
     void numPoints(const typename pcl::PointCloud<PointT>::Ptr& cloud);
-    Box BoundingBox(const typename pcl::PointCloud<PointT>::Ptr& cluster);
+    Box BoundingBox(const PointT& minPoint, const PointT& maxPoint);
 
 };
 
-#endif /* PROCESSPOINTCLOUDS_H */

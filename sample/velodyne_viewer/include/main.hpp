@@ -1,14 +1,10 @@
 #pragma once
+
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 //#include <opencv2/viz.hpp>
-
-// Include VelodyneCapture Header
-#include <velodyne/velodyneCapture.hpp>
-#include <render/render.hpp>
-
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
@@ -23,4 +19,3 @@
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/segmentation/extract_clusters.h>
-

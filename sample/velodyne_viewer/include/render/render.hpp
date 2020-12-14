@@ -3,14 +3,13 @@
 // such as cars and the highway
 
 #pragma once
-#ifndef RENDER_H
-#define RENDER_H
 
 #include <pcl/visualization/pcl_visualizer.h>
-#include <render/box.hpp>
 #include <iostream>
 #include <vector>
 #include <string>
+
+#include "render/box.hpp"
 
 struct Color
 {
@@ -59,4 +58,3 @@ void renderBox(pcl::visualization::PCLVisualizer::Ptr& viewer, BoxQ box, int id,
 // void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, BoxQ box, int id, Color color = Color(1, 0, 0), float opacity = 1);
 // void test();
 
-#endif

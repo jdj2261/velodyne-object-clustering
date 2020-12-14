@@ -1,5 +1,4 @@
-#include <process/processPointClouds.hpp>
-
+#include "process/processPointClouds.hpp"
 //constructor:
 
 template <typename PointT>
@@ -22,11 +21,6 @@ ProcessPointClouds<PointT>::ProcessPointClouds() {}
 
 // }
 
-template <typename PointT>
-void ProcessPointClouds<PointT>::test()
-{
-    std::cout << "test" << std::endl;
-}
 
 template<typename PointT>
 void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers, typename pcl::PointCloud<PointT>::Ptr& cloud)
@@ -69,19 +63,18 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
 {
 
     // Time segmentation process
-    auto startTime = std::chrono::steady_clock::now();
     typename pcl::PointCloud<PointT>::Ptr cloud_filtered(new pcl::PointCloud<PointT>());
 
     // TODO:: Fill in the function to do voxel grid point reduction and region based filtering
 
     // // Convert the points to voxel grid points
 
-//    pcl::VoxelGrid<pcl::PointXYZI> vg;
-//    vg.setInputCloud (cloud);
-//    vg.setLeafSize (0.005, 0.005, 0.005);
-//    vg.setDownsampleAllData (true);
-//    vg.filter (*cloud_filtered);
-//    std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
+    //    pcl::VoxelGrid<pcl::PointXYZI> vg;
+    //    vg.setInputCloud (cloud);
+    //    vg.setLeafSize (0.005, 0.005, 0.005);
+    //    vg.setDownsampleAllData (true);
+    //    vg.filter (*cloud_filtered);
+    //    std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
 
     pcl::PassThrough<pcl::PointXYZI> pass;
     pass.setInputCloud (cloud);
@@ -101,10 +94,6 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
     pass.setFilterLimits (minPoint.z, maxPoint.z);  // 0 ~ 1m
     pass.setFilterLimitsNegative (false);
     pass.filter (*cloud_filtered);
-
-    auto endTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "filtering took " << elapsedTime.count() << " milliseconds" << std::endl;
 
     return cloud_filtered;
 }
@@ -147,14 +136,14 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // Optional
     seg.setOptimizeCoefficients(true);
+    // Segment the largest planar component from the input cloud
+    seg.setInputCloud(cloud);
     // Mandatory
     seg.setModelType(pcl::SACMODEL_PLANE);
     seg.setMethodType(pcl::SAC_RANSAC);
     seg.setMaxIterations(maxIterations);
     seg.setDistanceThreshold(distanceThreshold);
 
-    // Segment the largest planar component from the input cloud
-    seg.setInputCloud(cloud);
     seg.segment(*inliers, *coefficients);
 
     if (inliers->indices.empty()) {
@@ -174,6 +163,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     // Time clustering process
     auto startTime = std::chrono::steady_clock::now();
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
+    clusters.reserve(60000);
     /*** Perform euclidean clustering to group detected obstacles ***/
 
     // Creating the KdTree object for the search method of the extraction
@@ -201,7 +191,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
         cloud_cluster->is_dense = true;
 
         if (cloud_cluster->width >= minSize && cloud_cluster->width <= maxSize) {
-            clusters.push_back(cloud_cluster);
+            clusters.emplace_back(cloud_cluster);
         }
     }
 
@@ -218,12 +208,12 @@ void ProcessPointClouds<PointT>::numPoints(const typename pcl::PointCloud<PointT
 }
 
 template<typename PointT>
-Box ProcessPointClouds<PointT>::BoundingBox(const typename pcl::PointCloud<PointT>::Ptr& cluster) {
+Box ProcessPointClouds<PointT>::BoundingBox(const PointT& minPoint, const PointT& maxPoint) {
     // Find bounding box for one of the clusters
-    PointT minPoint, maxPoint;
-    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
-
+//    PointT minPoint, maxPoint;
+//    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
     Box box{};
+
     box.x_min = minPoint.x;
     box.y_min = minPoint.y;
     box.z_min = minPoint.z;

@@ -1,6 +1,5 @@
 #pragma once
-#ifndef BOX_HPP
-#define BOX_HPP
+
 #include <Eigen/Geometry> 
 
 struct BoxQ
@@ -23,4 +22,4 @@ struct Box
     int x_mid;
     int y_mid;
 };
-#endif
+

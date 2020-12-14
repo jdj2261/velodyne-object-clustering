@@ -59,9 +59,9 @@ void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers,
 }
 
 template<typename PointT>
-typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud, float filterRes, const Vect3 minPoint, const Vect3 maxPoint)
+typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud,
+                                                                              Box host_box, float filterRes, const Vect3 minPoint, const Vect3 maxPoint)
 {
-
     // Time segmentation process
     typename pcl::PointCloud<PointT>::Ptr cloud_filtered(new pcl::PointCloud<PointT>());
 
@@ -84,15 +84,33 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(co
     pass.filter (*cloud_filtered);
 
     pass.setInputCloud (cloud_filtered);
+    pass.setFilterFieldName ("x");
+    pass.setFilterLimits (host_box.x_min, host_box.x_max);   // -2m ~ 2m
+    pass.setFilterLimitsNegative (true);
+    pass.filter (*cloud_filtered);
+
+    pass.setInputCloud (cloud_filtered);
     pass.setFilterFieldName ("y");
     pass.setFilterLimits (minPoint.y, maxPoint.y);  // 0 ~ 10m
     pass.setFilterLimitsNegative (false);
     pass.filter (*cloud_filtered);
 
     pass.setInputCloud (cloud_filtered);
+    pass.setFilterFieldName ("y");
+    pass.setFilterLimits (host_box.y_min, host_box.y_min);  // 0 ~ 10m
+    pass.setFilterLimitsNegative (true);
+    pass.filter (*cloud_filtered);
+
+    pass.setInputCloud (cloud_filtered);
     pass.setFilterFieldName ("z");
     pass.setFilterLimits (minPoint.z, maxPoint.z);  // 0 ~ 1m
     pass.setFilterLimitsNegative (false);
+    pass.filter (*cloud_filtered);
+
+    pass.setInputCloud (cloud_filtered);
+    pass.setFilterFieldName ("z");
+    pass.setFilterLimits (host_box.z_min, host_box.z_min);  // 0 ~ 1m
+    pass.setFilterLimitsNegative (true);
     pass.filter (*cloud_filtered);
 
     return cloud_filtered;

@@ -19,16 +19,18 @@
 void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
     constexpr float kFilterResolution = 10;
-    const Vect3 MinPoint(-2000, -5000, -150);
-    const Vect3 MaxPoint(2000, 5000, 100);
+    const Vect3 MinPoint(-1000, -3000, -150);
+    const Vect3 MaxPoint(1000, 200, 100);
 
-    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
-    auto filter_cloud = pcd_processor->FilterCloud(input_cloud, kFilterResolution, MinPoint, MaxPoint);
+    Box host_box = {-100, -170, -150, 100, 170, -50};
 
-//    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
+//    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
+    auto filter_cloud = pcd_processor->FilterCloud(input_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
+
+    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
 
     constexpr int kMaxIterations = 500;
-    constexpr float kDistanceThreshold = 1;
+    constexpr float kDistanceThreshold = 10;
     auto segment_cloud = pcd_processor->SegmentPlane(filter_cloud, kMaxIterations, kDistanceThreshold);
 
     // render obstacles point cloud with red
@@ -36,18 +38,17 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 
 //    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
-    constexpr float kClusterTolerance = 25;
-    constexpr int kMinSize = 50;
-    constexpr int kMaxSize = 1000;
-    auto cloud_clusters = pcd_processor->Clustering(segment_cloud.first, kClusterTolerance, kMinSize, kMaxSize);
+    constexpr float kClusterTolerance = 100;
+    constexpr int kMinSize = 10;
+    constexpr int kMaxSize = 5000;
+    auto cloud_clusters = pcd_processor->Clustering(filter_cloud, kClusterTolerance, kMinSize, kMaxSize);
 
     int cluster_ID = 0;
     std::vector<Color> colors = {Color(1, 0, 0), Color(0, 0, 1), Color(0.5, 0, 1)};
 
     int num_of_colors = colors.size();
 
-//    Box host_box = {-100, -170, 0, 100, 170, 20};
-//    renderBox(viewer, host_box, -1, Color(0.5, 0, 1), 0.8);
+    renderBox(viewer, host_box, -1, Color(0.5, 0, 1), 0.8);
 
     constexpr float kBBoxMinHeight = 0.75;
     constexpr float kBBoxBound = 0.75;
@@ -65,21 +66,12 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
         pcl::PointXYZ test_point;
         test_point.x = box.x_mid;
         test_point.y = box.y_mid;
-        test_point.z = 1.0;
+        test_point.z = 100.0;
         // Filter out some cluster with little points and shorter in height
-        if (cluster->points.size() >= kMinSize )
+        if (cluster->points.size() >= kMinSize)
         {
-//            if (maxPoint.x - minPoint.x < host_box.x_max- host_box.x_min &&
-//                    maxPoint.y - minPoint.y < host_box.y_max- host_box.y_min &&
-//                    maxPoint.z - minPoint.z < host_box.z_max- host_box.z_min)
-//            {
-//                continue;
-//            }
-//            else
-//            {
-                renderBox(viewer, box, cluster_ID);
-                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
-//            }
+            renderBox(viewer, box, cluster_ID);
+            viewer->addText3D(std::to_string((int)abs(test_point.y)/100), test_point, 100.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
         }
 
         //        cout << cluster_ID << endl;
@@ -111,7 +103,7 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &vi
         case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
         case TopDown : viewer->setCameraPosition(0, 0, distance, 1, 0, 1); break;
         case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
-        case FPS : viewer->setCameraPosition(-10, 0, 0, 0, 0, 1);
+        case FPS: viewer->setCameraPosition(0, 10, 10, 0, 0, 1);
     }
 
     if(setAngle!=FPS)

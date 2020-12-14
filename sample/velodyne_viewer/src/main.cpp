@@ -19,24 +19,26 @@
 void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
     constexpr float kFilterResolution = 10;
-    const Vect3 MinPoint(-10.0f, -20.0f, -1.5f);
-    const Vect3 MaxPoint(10.0f, 2.0f, 4.0f);
+    const Vect3 MinPoint(-2000, -5000, -150);
+    const Vect3 MaxPoint(2000, 5000, 100);
 
-    //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
+    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
     auto filter_cloud = pcd_processor->FilterCloud(input_cloud, kFilterResolution, MinPoint, MaxPoint);
 
-    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
+//    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
 
     constexpr int kMaxIterations = 500;
-    constexpr float kDistanceThreshold = 0.01;
+    constexpr float kDistanceThreshold = 1;
     auto segment_cloud = pcd_processor->SegmentPlane(filter_cloud, kMaxIterations, kDistanceThreshold);
 
     // render obstacles point cloud with red
-    //    renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 0, 0));
+//    renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 0, 0));
 
-    constexpr float kClusterTolerance = 1.0;
-    constexpr int kMinSize = 5;
-    constexpr int kMaxSize = 5000;
+//    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
+
+    constexpr float kClusterTolerance = 25;
+    constexpr int kMinSize = 50;
+    constexpr int kMaxSize = 1000;
     auto cloud_clusters = pcd_processor->Clustering(segment_cloud.first, kClusterTolerance, kMinSize, kMaxSize);
 
     int cluster_ID = 0;
@@ -44,15 +46,15 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 
     int num_of_colors = colors.size();
 
-    Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, 0.2};
-    renderBox(viewer, host_box, -1, Color(0.5, 0, 1), 0.8);
+//    Box host_box = {-100, -170, 0, 100, 170, 20};
+//    renderBox(viewer, host_box, -1, Color(0.5, 0, 1), 0.8);
 
     constexpr float kBBoxMinHeight = 0.75;
     constexpr float kBBoxBound = 0.75;
 
     for(const auto& cluster : cloud_clusters) {
-        //        std::cout << "cluster size ";
-        //        pcd_processor->numPoints(cluster);
+        std::cout << "cluster size ";
+        pcd_processor->numPoints(cluster);
 
 //            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
 
@@ -67,17 +69,17 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
         // Filter out some cluster with little points and shorter in height
         if (cluster->points.size() >= kMinSize )
         {
-            if (maxPoint.x - minPoint.x < host_box.x_max- host_box.x_min &&
-                    maxPoint.y - minPoint.y < host_box.y_max- host_box.y_min &&
-                    maxPoint.z - minPoint.z < host_box.z_max- host_box.z_min)
-            {
-                continue;
-            }
-            else
-            {
+//            if (maxPoint.x - minPoint.x < host_box.x_max- host_box.x_min &&
+//                    maxPoint.y - minPoint.y < host_box.y_max- host_box.y_min &&
+//                    maxPoint.z - minPoint.z < host_box.z_max- host_box.z_min)
+//            {
+//                continue;
+//            }
+//            else
+//            {
                 renderBox(viewer, box, cluster_ID);
                 viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
-            }
+//            }
         }
 
         //        cout << cluster_ID << endl;
@@ -86,7 +88,6 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
     viewer->addText(" Cluster: " + std::to_string(cluster_ID), 5, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
 
     //render ground plane with green
-//    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
     // if (!viewer->updatePointCloud<pcl::PointXYZI>(input_cloud,"raw_cloud"))
     // {
@@ -98,30 +99,23 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
 
-    viewer->setBackgroundColor(0, 0, 0);
+    viewer->setBackgroundColor (0, 0, 0);
 
     // set camera position and angle
     viewer->initCameraParameters();
     // distance away in meters
-    int distance = 100;
+    int distance = 1000;
 
-    switch (setAngle)
+    switch(setAngle)
     {
-    case XY:
-        viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0);
-        break;
-    case TopDown:
-        viewer->setCameraPosition(0, 25, 25, 0, 100, 1);
-        break;
-    case Side:
-        viewer->setCameraPosition(0, -distance, 0, 0, 0, 1);
-        break;
-    case FPS:
-        viewer->setCameraPosition(0, 3, 1, 0, 0, 1);
+        case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
+        case TopDown : viewer->setCameraPosition(0, 0, distance, 1, 0, 1); break;
+        case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
+        case FPS : viewer->setCameraPosition(-10, 0, 0, 0, 0, 1);
     }
 
-    if (setAngle != FPS)
-        viewer->addCoordinateSystem(1.0);
+    if(setAngle!=FPS)
+        viewer->addCoordinateSystem (100.0);
 }
 
 
@@ -175,7 +169,7 @@ int main(int argc, char *argv[])
 
     pcl::visualization::PCLVisualizer::Ptr pcl_viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 
-    CameraAngle setAngle = FPS;
+    CameraAngle setAngle = XY;
     initCamera(setAngle, pcl_viewer);
 
     while (!pcl_viewer->wasStopped())

@@ -21,23 +21,11 @@ Please define <code>HAVE_PCAP</code> in preprocessor.
 Sample
 ------
 This repository has two sample programs.  
-* simple  
-  This sample program displays data on standard output.  
-  This sample program depends on the following libraries: ( Boost.Asio or libpcap ( or WinPCAP ) ) of VelodyneCapture class.  
 
-* viewer  
+* velodyne_viewer  
   This sample program displays data on a point cloud viewer.  
-  This sample program depends on OpenCV Viz module in addition to the above libraries ( Boost.Asio or libpcap ( or WinPCAP ) ) of VelodyneCapture class.  
-
-License
--------
-Copyright &copy; 2017 Tsukasa SUGIURA  
-Distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php "MIT License | Open Source Initiative").  
+  This sample program depends on the above libraries ( Boost.Asio or libpcap ( or WinPCAP ) ) of VelodyneCapture class.  
 
 
-Contact
--------
-* Tsukasa Sugiura
-    * <t.sugiura0204@gmail.com>
-    * <https://twitter.com/UnaNancyOwen>
-    * <http://UnaNancyOwen.com>
+To do
+* UKF

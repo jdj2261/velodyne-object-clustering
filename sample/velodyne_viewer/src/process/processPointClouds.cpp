@@ -32,9 +32,9 @@ void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers,
         const double azimuth  = laser.azimuth  * CV_PI / 180.0;
         const double vertical = laser.vertical * CV_PI / 180.0;
 
-        float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) ) / 100;
-        float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) ) / 100;
-        float z = static_cast<float>( ( distance * std::sin( vertical ) ) ) / 100;
+        float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) ) ;
+        float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) ) ;
+        float z = static_cast<float>( ( distance * std::sin( vertical ) ) ) ;
         float i = static_cast<unsigned int>(laser.intensity);
 
         if( x == 0.0f && y == 0.0f && z == 0.0f ){
@@ -179,10 +179,12 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     ec.setInputCloud(cloud);
     ec.extract(cluster_indices);
 
-    for (const auto& get_indices : cluster_indices) {
+    for (const auto& get_indices : cluster_indices)
+    {
         typename pcl::PointCloud<PointT>::Ptr cloud_cluster(new pcl::PointCloud<PointT>());
 
-        for (const auto index : get_indices.indices) {
+        for (const auto index : get_indices.indices)
+        {
             cloud_cluster->points.push_back(cloud->points[index]);
         }
 
@@ -190,7 +192,8 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
-        if (cloud_cluster->width >= minSize && cloud_cluster->width <= maxSize) {
+        if (cloud_cluster->width >= minSize && cloud_cluster->width <= maxSize)
+        {
             clusters.emplace_back(cloud_cluster);
         }
     }

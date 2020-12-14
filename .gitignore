@@ -1,2 +1,4 @@
 *.pcap
 build
+.vscode
+CMakeLists.txt.user

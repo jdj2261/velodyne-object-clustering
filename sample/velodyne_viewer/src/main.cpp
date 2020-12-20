@@ -13,16 +13,17 @@
 #include "velodyne/velodyneCapture.hpp"
 #include "render/render.hpp"
 #include "process/processPointClouds.cpp"
+#include <omp.h>
 
 
 // To make 3d Boxing for clustered points
 void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
     constexpr float kFilterResolution = 10;
-    const Vect3 MinPoint(-1000, -3000, -150);
-    const Vect3 MaxPoint(1000, 200, 100);
+    const Vect3 MinPoint(-10, -30, -1.5);
+    const Vect3 MaxPoint(10, 2, 1);
 
-    Box host_box = {-100, -170, -150, 100, 170, -50};
+    Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, -0.5};
 
 //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
     auto filter_cloud = pcd_processor->FilterCloud(input_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
@@ -38,9 +39,11 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 
 //    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
-    constexpr float kClusterTolerance = 100;
+    constexpr float kClusterTolerance = 1;
     constexpr int kMinSize = 10;
     constexpr int kMaxSize = 5000;
+
+
     auto cloud_clusters = pcd_processor->Clustering(filter_cloud, kClusterTolerance, kMinSize, kMaxSize);
 
     int cluster_ID = 0;
@@ -53,30 +56,40 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
     constexpr float kBBoxMinHeight = 0.75;
     constexpr float kBBoxBound = 0.75;
 
-    for(const auto& cluster : cloud_clusters) {
-        std::cout << "cluster size ";
-        pcd_processor->numPoints(cluster);
-
-//            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
-
-        pcl::PointXYZI minPoint, maxPoint;
-        pcl::getMinMax3D(*cluster, minPoint, maxPoint);
-
-        Box box = pcd_processor->BoundingBox(minPoint, maxPoint);
-        pcl::PointXYZ test_point;
-        test_point.x = box.x_mid;
-        test_point.y = box.y_mid;
-        test_point.z = 100.0;
-        // Filter out some cluster with little points and shorter in height
-        if (cluster->points.size() >= kMinSize)
+    auto startTime = std::chrono::steady_clock::now();
+    #pragma omp parallel for
+    {
+        for(const auto& cluster : cloud_clusters)
         {
-            renderBox(viewer, box, cluster_ID);
-            viewer->addText3D(std::to_string((int)abs(test_point.y)/100), test_point, 100.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+//            std::cout << "cluster size ";
+//            pcd_processor->numPoints(cluster);
+
+    //            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
+
+            pcl::PointXYZI minPoint, maxPoint;
+            pcl::getMinMax3D(*cluster, minPoint, maxPoint);
+
+            Box box = pcd_processor->BoundingBox(minPoint, maxPoint);
+            pcl::PointXYZ test_point;
+            test_point.x = box.x_mid;
+            test_point.y = box.y_mid;
+            test_point.z = 1.0;
+            // Filter out some cluster with little points and shorter in height
+            if (cluster->points.size() >= kMinSize)
+            {
+                renderBox(viewer, box, cluster_ID);
+                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+            }
+
+            //        cout << cluster_ID << endl;
+            cluster_ID++;
         }
 
-        //        cout << cluster_ID << endl;
-        cluster_ID++;
+        auto endTime = std::chrono::steady_clock::now();
+        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
     }
+
     viewer->addText(" Cluster: " + std::to_string(cluster_ID), 5, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
 
     //render ground plane with green
@@ -96,21 +109,23 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &vi
     // set camera position and angle
     viewer->initCameraParameters();
     // distance away in meters
-    int distance = 1000;
+    int distance = 100;
 
     switch(setAngle)
     {
         case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
         case TopDown : viewer->setCameraPosition(0, 0, distance, 1, 0, 1); break;
         case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
-        case FPS: viewer->setCameraPosition(0, 10, 10, 0, 0, 1);
+        case FPS: viewer->setCameraPosition(-1, 1, 0, 0, 0, 10);
     }
 
     if(setAngle!=FPS)
-        viewer->addCoordinateSystem (100.0);
+        viewer->addCoordinateSystem (1.0);
 }
 
-
+//        auto endTime = std::chrono::steady_clock::now();
+//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+//        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
 int main(int argc, char *argv[])
 {
     // Command - Line Argument Parsing if (pcl::console::find_switch(argc, argv, "-help"))
@@ -126,7 +141,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    std::string ipaddress("192.168.1.70");
+    std::string ipaddress("192.168.1.21");
     std::string port("2368");
     std::string pcap;
     bool is_saved(false);
@@ -166,6 +181,8 @@ int main(int argc, char *argv[])
 
     while (!pcl_viewer->wasStopped())
     {
+//        auto startTime = std::chrono::steady_clock::now();
+
         pcl_viewer->removeAllPointClouds();
         pcl_viewer->removeAllShapes();
         pcl_viewer->removeText3D();
@@ -181,12 +198,15 @@ int main(int argc, char *argv[])
         else
             pointProcessorI->laser2pcd(lasers, cloud);
 
-        std::cout << "cloud size ";
-        std::cout << cloud->points.size() << std::endl;
+//        std::cout << "cloud size ";
+//        std::cout << cloud->points.size() << std::endl;
         makeBox(pcl_viewer, pointProcessorI, cloud);
 
 
         pcl_viewer->spinOnce();
+//        auto endTime = std::chrono::steady_clock::now();
+//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+//        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
     }
 
     cout << "finished.." << endl;

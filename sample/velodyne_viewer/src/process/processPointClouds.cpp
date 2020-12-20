@@ -1,4 +1,5 @@
 #include "process/processPointClouds.hpp"
+#include <omp.h>
 //constructor:
 
 template <typename PointT>
@@ -27,28 +28,32 @@ void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers,
 {
     PointT point;
 
-    for( const velodyne::Laser& laser : lasers ){
-        const double distance = static_cast<double>( laser.distance );
-        const double azimuth  = laser.azimuth  * CV_PI / 180.0;
-        const double vertical = laser.vertical * CV_PI / 180.0;
+    #pragma omp parallel for
+    {
+        for( const velodyne::Laser& laser : lasers )
+        {
+            const double distance = static_cast<double>( laser.distance ) / 100.0;
+            const double azimuth  = laser.azimuth  * CV_PI / 180.0;
+            const double vertical = laser.vertical * CV_PI / 180.0;
 
-        float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) ) ;
-        float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) ) ;
-        float z = static_cast<float>( ( distance * std::sin( vertical ) ) ) ;
-        float i = static_cast<unsigned int>(laser.intensity);
+            float x = static_cast<float>( ( distance * std::cos( vertical ) ) * std::sin( azimuth ) ) ;
+            float y = static_cast<float>( ( distance * std::cos( vertical ) ) * std::cos( azimuth ) ) ;
+            float z = static_cast<float>( ( distance * std::sin( vertical ) ) ) ;
+            float i = static_cast<unsigned int>(laser.intensity);
 
-        if( x == 0.0f && y == 0.0f && z == 0.0f ){
-            x = std::numeric_limits<float>::quiet_NaN();
-            y = std::numeric_limits<float>::quiet_NaN();
-            z = std::numeric_limits<float>::quiet_NaN();
+            if( x == 0.0f && y == 0.0f && z == 0.0f ){
+                x = std::numeric_limits<float>::quiet_NaN();
+                y = std::numeric_limits<float>::quiet_NaN();
+                z = std::numeric_limits<float>::quiet_NaN();
+            }
+
+            point.x = x;
+            point.y = y;
+            point.z = z;
+            point.intensity = i;
+
+            cloud->push_back(point);
         }
-
-        point.x = x;
-        point.y = y;
-        point.z = z;
-        point.intensity = i;
-
-        cloud->push_back(point);
     }
 
     cloud->width = cloud->points.size();
@@ -124,8 +129,12 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     typename pcl::PointCloud<PointT>::Ptr plane_cloud(new pcl::PointCloud<PointT>());
 
     // Copy inliers point cloud as plane
-    for (int index : inliers->indices) {
-        plane_cloud->points.push_back(cloud->points[index]);
+    #pragma omp parallel for
+    {
+        for (int index : inliers->indices)
+        {
+            plane_cloud->points.push_back(cloud->points[index]);
+        }
     }
 
     // Create the filtering object
@@ -170,7 +179,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
+//    std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
 
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult = SeparateClouds(inliers, cloud);
     return segResult;
@@ -197,22 +206,25 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     ec.setInputCloud(cloud);
     ec.extract(cluster_indices);
 
-    for (const auto& get_indices : cluster_indices)
     {
-        typename pcl::PointCloud<PointT>::Ptr cloud_cluster(new pcl::PointCloud<PointT>());
-
-        for (const auto index : get_indices.indices)
+        for (const auto& get_indices : cluster_indices)
         {
-            cloud_cluster->points.push_back(cloud->points[index]);
-        }
+            typename pcl::PointCloud<PointT>::Ptr cloud_cluster(new pcl::PointCloud<PointT>());
 
-        cloud_cluster->width = cloud_cluster->points.size();
-        cloud_cluster->height = 1;
-        cloud_cluster->is_dense = true;
+            #pragma omp parallel for
+            for (const auto index : get_indices.indices)
+            {
+                cloud_cluster->points.push_back(cloud->points[index]);
+            }
 
-        if (cloud_cluster->width >= minSize && cloud_cluster->width <= maxSize)
-        {
-            clusters.emplace_back(cloud_cluster);
+            cloud_cluster->width = cloud_cluster->points.size();
+            cloud_cluster->height = 1;
+            cloud_cluster->is_dense = true;
+
+            if (cloud_cluster->width >= minSize && cloud_cluster->width <= maxSize)
+            {
+                clusters.emplace_back(cloud_cluster);
+            }
         }
     }
 
@@ -231,8 +243,8 @@ void ProcessPointClouds<PointT>::numPoints(const typename pcl::PointCloud<PointT
 template<typename PointT>
 Box ProcessPointClouds<PointT>::BoundingBox(const PointT& minPoint, const PointT& maxPoint) {
     // Find bounding box for one of the clusters
-//    PointT minPoint, maxPoint;
-//    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
+    //    PointT minPoint, maxPoint;
+    //    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
     Box box{};
 
     box.x_min = minPoint.x;

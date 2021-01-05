@@ -19,32 +19,31 @@
 // To make 3d Boxing for clustered points
 void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
-    constexpr float kFilterResolution = 10;
-    const Vect3 MinPoint(-10, -30, -1.5);
-    const Vect3 MaxPoint(10, 2, 1);
+    constexpr float kFilterResolution = 0.01f; // 10 cm
+    const Vect3 MinPoint(-10, 0, -1.4);
+    const Vect3 MaxPoint(10, 30, 2);
 
     Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, -0.5};
 
 //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
     auto filter_cloud = pcd_processor->FilterCloud(input_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
 
-    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,1,1));
+    renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,0,0));
 
-    constexpr int kMaxIterations = 500;
-    constexpr float kDistanceThreshold = 10;
+    constexpr int kMaxIterations = 1000;
+    constexpr float kDistanceThreshold = 0.1;
     auto segment_cloud = pcd_processor->SegmentPlane(filter_cloud, kMaxIterations, kDistanceThreshold);
 
     // render obstacles point cloud with red
-//    renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 0, 0));
+    renderPointCloud(viewer, segment_cloud.first, "ObstacleCloud", Color(1, 1, 1));
 
-//    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
+    renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
-    constexpr float kClusterTolerance = 1;
-    constexpr int kMinSize = 10;
-    constexpr int kMaxSize = 5000;
+    constexpr float kClusterTolerance = 0.1;
+    constexpr int kMinSize = 8;
+    constexpr int kMaxSize = 500;
 
-
-    auto cloud_clusters = pcd_processor->Clustering(filter_cloud, kClusterTolerance, kMinSize, kMaxSize);
+    auto cloud_clusters = pcd_processor->Clustering(segment_cloud.first, kClusterTolerance, kMinSize, kMaxSize);
 
     int cluster_ID = 0;
     std::vector<Color> colors = {Color(1, 0, 0), Color(0, 0, 1), Color(0.5, 0, 1)};
@@ -75,10 +74,10 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
             test_point.y = box.y_mid;
             test_point.z = 1.0;
             // Filter out some cluster with little points and shorter in height
-            if (cluster->points.size() >= kMinSize)
+            if (cluster->points.size() >= kMinSize )
             {
                 renderBox(viewer, box, cluster_ID);
-                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+//                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
             }
 
             //        cout << cluster_ID << endl;
@@ -90,15 +89,8 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
         std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
     }
 
-    viewer->addText(" Cluster: " + std::to_string(cluster_ID), 5, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
+    viewer->addText(" Cluster: " + std::to_string(cluster_ID), 1500, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
 
-    //render ground plane with green
-
-    // if (!viewer->updatePointCloud<pcl::PointXYZI>(input_cloud,"raw_cloud"))
-    // {
-    //     viewer->addPointCloud<pcl::PointXYZI>(input_cloud,"raw_cloud");
-    //     //            pcl_viewer->addPointCloud<pcl::PointXYZI>(cloud_filtered,"cloud");
-    // }
 }
 
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &viewer)
@@ -108,7 +100,7 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &vi
 
     // set camera position and angle
     viewer->initCameraParameters();
-    // distance away in meters
+    // distance away in meters    std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
     int distance = 100;
 
     switch(setAngle)
@@ -201,6 +193,12 @@ int main(int argc, char *argv[])
 //        std::cout << "cloud size ";
 //        std::cout << cloud->points.size() << std::endl;
         makeBox(pcl_viewer, pointProcessorI, cloud);
+
+//        if (lasers.size() == 0)
+//        {
+//          std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+//          break;
+//        }
 
 
         pcl_viewer->spinOnce();

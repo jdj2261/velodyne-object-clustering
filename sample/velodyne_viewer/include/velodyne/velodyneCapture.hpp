@@ -396,7 +396,7 @@ namespace velodyne
                       #else
                       laser.time = unixtime + static_cast<long long>( laser_relative_time );
                       #endif
-                      lasers.push_back( laser );
+                      lasers.emplace_back( laser );
                       // Update Last Rotation Azimuth
                       last_azimuth = azimuth;
                   }
@@ -452,6 +452,7 @@ namespace velodyne
             // Capture Thread from PCAP
             void capturePCAP()
             {
+                struct timeval last_time = { 0 };
                 double last_azimuth = 0.0;
                 std::vector<Laser> lasers;
 
@@ -474,6 +475,25 @@ namespace velodyne
                     std::stringstream ss;
                     ss << header->ts.tv_sec << std::setw( 6 ) << std::right << std::setfill( '0' ) << header->ts.tv_usec;
                     const long long unixtime = std::stoll( ss.str() );
+
+
+                    // Wait This Thread Difference Time
+                    if( last_time.tv_sec == 0 )
+                    {
+                        last_time = header->ts;
+                    }
+
+                    if( last_time.tv_usec > header->ts.tv_usec )
+                    {
+                        last_time.tv_usec -= 1000000;
+                        last_time.tv_sec++;
+                    }
+
+                    const unsigned long long delay = ( ( header->ts.tv_sec - last_time.tv_sec ) * 1000000 ) + ( header->ts.tv_usec - last_time.tv_usec );
+                    #ifndef HAVE_FAST_PCAP
+                    std::this_thread::sleep_for( std::chrono::microseconds( delay ) );
+                    #endif
+                    last_time = header->ts;
 
                     // Convert to DataPacket Structure ( Cut Header 42 bytes )
                     // Sensor Type 0x21 is HDL-32E, 0x22 is VLP-16
@@ -560,7 +580,7 @@ namespace velodyne
                                         0.0, -20.0, 1.33, -18.67, 2.6700001, -17.33, 4.0, -16, 5.3299999, -14.67, 6.6700001, -13.33, 8.0, -12.0, 9.3299999, -10.67, 10.67 };
                 time_between_firings = 1.152;
                 time_half_idle       = 0.0;
-                time_total_cycle     = 46.080; 
+                time_total_cycle     = 46.080;
             };
     };
 }

@@ -45,7 +45,6 @@ void ProcessPointClouds<PointT>::laser2pcd (std::vector<velodyne::Laser> lasers,
             y = std::numeric_limits<float>::quiet_NaN();
             z = std::numeric_limits<float>::quiet_NaN();
         }
-
         point.x = x;
         point.y = y;
         point.z = z;
@@ -146,7 +145,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlane(const typename pcl::PointCloud<PointT>::Ptr& cloud, const int maxIterations, const float distanceThreshold) {
     // Time segmentation process
-    auto startTime = std::chrono::steady_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     /*** PCL IMPLEMENTATION START ***/
     // Create the segmentation object
@@ -170,7 +169,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         std::cerr << "Could not estimate a planar model for the given dataset" << std::endl;
     }
 
-    auto endTime = std::chrono::steady_clock::now();
+    auto endTime = std::chrono::high_resolution_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
 
@@ -181,7 +180,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(const typename pcl::PointCloud<PointT>::Ptr& cloud, float clusterTolerance, int minSize, int maxSize) {
     // Time clustering process
-    auto startTime = std::chrono::steady_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
     clusters.reserve(10000);
     /*** Perform euclidean clustering to group detected obstacles ***/
@@ -220,7 +219,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     }
 
 
-    auto endTime = std::chrono::steady_clock::now();
+    auto endTime = std::chrono::high_resolution_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
 

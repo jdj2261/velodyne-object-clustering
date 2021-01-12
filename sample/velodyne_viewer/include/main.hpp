@@ -19,3 +19,14 @@
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/segmentation/extract_clusters.h>
+
+// Include VelodyneCapture Header
+#include "velodyne/velodyneCapture.hpp"
+#include "render/render.hpp"
+#include "process/processPointClouds.cpp"
+
+void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &viewer);
+void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,
+             std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor,
+             const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud);
+void rotation(const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloud, const pcl::PointCloud<pcl::PointXYZI>::Ptr& transformed_cloud, const float& theta);

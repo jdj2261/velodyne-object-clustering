@@ -9,24 +9,38 @@
  *
  */
 #include "main.hpp"
-// Include VelodyneCapture Header
-#include "velodyne/velodyneCapture.hpp"
-#include "render/render.hpp"
-#include "process/processPointClouds.cpp"
 #include <omp.h>
 
+void rotation(const pcl::PointCloud<pcl::PointXYZI>::Ptr& cloud, const pcl::PointCloud<pcl::PointXYZI>::Ptr& transformed_cloud, const float& theta)
+{
+    Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+
+    transform (0,0) = std::cos (theta);
+    transform (0,1) = -sin(theta);
+    transform (1,0) = sin (theta);
+    transform (1,1) = std::cos (theta);
+
+    pcl::transformPointCloud (*cloud, *transformed_cloud, transform);
+}
 
 // To make 3d Boxing for clustered points
 void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pcd_processor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& input_cloud)
 {
-    constexpr float kFilterResolution = 0.01f; // 10 cm
-    const Vect3 MinPoint(-10, 0, -1.4);
-    const Vect3 MaxPoint(10, 30, 2);
+
+    float theta_r = 50 * M_PI/ 180;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr transformed_cloud (new pcl::PointCloud<pcl::PointXYZI> ());
+
+    rotation(input_cloud, transformed_cloud, theta_r);
+
+    constexpr float kFilterResolution = 0.1f; // 10 cm
+    const Vect3 MinPoint(-10, 0, -1.0);
+    const Vect3 MaxPoint(10, 30, 5);
+    float host_yaw = 30;
 
     Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, -0.5};
 
 //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
-    auto filter_cloud = pcd_processor->FilterCloud(input_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
+    auto filter_cloud = pcd_processor->FilterCloud(transformed_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
 
     renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,0,0));
 
@@ -39,9 +53,9 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 
     renderPointCloud(viewer, segment_cloud.second, "GroundCloud", Color(0, 1, 0));
 
-    constexpr float kClusterTolerance = 0.1;
-    constexpr int kMinSize = 8;
-    constexpr int kMaxSize = 500;
+    constexpr float kClusterTolerance = 0.8;
+    constexpr int kMinSize = 3;
+    constexpr int kMaxSize = 1000;
 
     auto cloud_clusters = pcd_processor->Clustering(segment_cloud.first, kClusterTolerance, kMinSize, kMaxSize);
 
@@ -55,7 +69,7 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
     constexpr float kBBoxMinHeight = 0.75;
     constexpr float kBBoxBound = 0.75;
 
-    auto startTime = std::chrono::steady_clock::now();
+    auto startTime = std::chrono::high_resolution_clock::now();
     #pragma omp parallel for
     {
         for(const auto& cluster : cloud_clusters)
@@ -84,13 +98,12 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
             cluster_ID++;
         }
 
-        auto endTime = std::chrono::steady_clock::now();
+        auto endTime = std::chrono::high_resolution_clock::now();
         auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
         std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
     }
 
     viewer->addText(" Cluster: " + std::to_string(cluster_ID), 1500, 5, 20, 1, 1, 1, std::to_string(cluster_ID));
-
 }
 
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &viewer)
@@ -101,12 +114,12 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &vi
     // set camera position and angle
     viewer->initCameraParameters();
     // distance away in meters    std::cerr << "Voxeled " << cloud_filtered->points.size () << std::endl;
-    int distance = 100;
+    int distance = 25;
 
     switch(setAngle)
     {
         case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
-        case TopDown : viewer->setCameraPosition(0, 0, distance, 1, 0, 1); break;
+        case TopDown : viewer->setCameraPosition(0, -distance, distance, 0, 2, 1); break;
         case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
         case FPS: viewer->setCameraPosition(-1, 1, 0, 0, 0, 10);
     }
@@ -168,7 +181,7 @@ int main(int argc, char *argv[])
 
     pcl::visualization::PCLVisualizer::Ptr pcl_viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 
-    CameraAngle setAngle = XY;
+    CameraAngle setAngle = TopDown;
     initCamera(setAngle, pcl_viewer);
 
     while (!pcl_viewer->wasStopped())
@@ -192,6 +205,7 @@ int main(int argc, char *argv[])
 
 //        std::cout << "cloud size ";
 //        std::cout << cloud->points.size() << std::endl;
+
         makeBox(pcl_viewer, pointProcessorI, cloud);
 
 //        if (lasers.size() == 0)

@@ -49,9 +49,11 @@ if(Boost_FOUND OR PCAP_FOUND)
                 link_directories(${Boost_USE_MULTITHREADED})
 
                 file(GLOB SOURCE_FILES
+                    include/*.h
                     include/velodyne_driver/*.h
                     include/velodyne_pointcloud/*.h
-                    src/driver/*.cpp
+                    src/velodyne_driver/*.cpp
+                    src/velodyne_pointcloud/*.cpp
                     src/main.cpp)
                 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
 		

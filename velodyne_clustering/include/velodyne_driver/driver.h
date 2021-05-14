@@ -6,10 +6,33 @@
 
 #include <string>
 #include "input.h"
-//#include "tra
+#include "velodyne_pointcloud/transform.h"
+#include <memory>
 
 namespace velodyne_driver
 {
+  class VelodyneDriver
+  {
+  public:
 
+    VelodyneDriver();
+    ~VelodyneDriver();
+    bool poll();
 
+  private:
+
+    struct
+    {
+      std::string frame_id;            ///< tf frame ID
+      std::string model;               ///< device model name
+      int    npackets;                 ///< number of packets to collect
+      double rpm;                      ///< device rotation rate (RPMs)
+      int cut_angle;                   ///< cutting angle in 1/100°
+      double time_offset;              ///< time in seconds added to each velodyne time stamp
+    } config_;
+
+    int last_azimuth_;
+    std::shared_ptr<Input> input_;
+    std::shared_ptr<velodyne_pointcloud::Transfrom> trans_;
+  };
 }

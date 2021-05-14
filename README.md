@@ -1,4 +1,4 @@
-VelodyneCapture
+Velodyne-clustring-example
 ===============
 
 VelodyneCapture is the general capture class to retrieve the laser data from Velodyne sensors using Boost.Asio and PCAP.  

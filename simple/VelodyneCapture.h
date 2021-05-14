@@ -25,12 +25,13 @@
 #include <mutex>
 #include <queue>
 #include <vector>
-#include <cassert>
+//#include <cassert>
 #include <cstdint>
 #include <chrono>
-#include <iomanip>
+//#include <iomanip>
 #include <algorithm>
-#include <functional>
+//#include <functional>
+#include <iostream>
 #ifdef HAVE_BOOST
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -122,14 +123,14 @@ namespace velodyne
             // Constructor
             VelodyneCapture()
             {
-            };
+            }
 
             #ifdef HAVE_BOOST
             // Constructor ( direct capture from Sensor )
             VelodyneCapture( const boost::asio::ip::address& address, const unsigned short port = 2368 )
             {
                 open( address, port );
-            };
+            }
             #endif
 
             #ifdef HAVE_PCAP
@@ -137,7 +138,7 @@ namespace velodyne
             VelodyneCapture( const std::string& filename )
             {
                 open( filename );
-            };
+            }
             #endif
 
             // Destructor
@@ -182,7 +183,7 @@ namespace velodyne
                 thread = new std::thread( std::bind( &VelodyneCapture::captureSensor, this ) );
 
                 return true;
-            };
+            }
             #endif
 
             #ifdef HAVE_PCAP
@@ -223,7 +224,7 @@ namespace velodyne
                 thread = new std::thread( std::bind( &VelodyneCapture::capturePCAP, this ) );
 
                 return true;
-            };
+            }
             #endif
 
             // Check Open
@@ -245,7 +246,7 @@ namespace velodyne
                     false
                     #endif
                 );
-            };
+            }
 
             // Check Run
             const bool isRun()
@@ -294,7 +295,7 @@ namespace velodyne
 
                 // Clear Queue
                 std::queue<std::vector<Laser>>().swap( queue );
-            };
+            }
 
             // Retrieve Capture Data
             void retrieve( std::vector<Laser>& lasers, const bool sort = false )
@@ -310,14 +311,14 @@ namespace velodyne
                     }
                     mutex.unlock();
                 }
-            };
+            }
 
             // Operator Retrieve Capture Data with Sort
             void operator >> ( std::vector<Laser>& lasers )
             {
                 // Retrieve Capture Data
                 retrieve( lasers, false );
-            };
+            }
 
             size_t getQueueSize()
             {
@@ -409,7 +410,7 @@ namespace velodyne
               lasers.clear();
               #endif
 
-          };
+          }
             #ifdef HAVE_BOOST
             // Capture Thread from Sensor
             void captureSensor()
@@ -445,7 +446,7 @@ namespace velodyne
 
                 }
                 run = false;
-            };
+            }
             #endif
 
             #ifdef HAVE_PCAP
@@ -481,7 +482,7 @@ namespace velodyne
                     parseDataPacket(packet, lasers, last_azimuth);
                 }
                 run = false;
-            };
+            }
             #endif
     };
 
@@ -491,14 +492,14 @@ namespace velodyne
             VLP16Capture() : VelodyneCapture()
             {
                 initialize();
-            };
+            }
 
             #ifdef HAVE_BOOST
             VLP16Capture( const boost::asio::ip::address& address, const unsigned short port = 2368 ) : VelodyneCapture()
             {
                 initialize();
                 open( address, port );
-            };
+            }
             #endif
 
             #ifdef HAVE_PCAP
@@ -506,12 +507,12 @@ namespace velodyne
             {
                 initialize();
                 open( filename );
-            };
+            }
             #endif
 
             ~VLP16Capture()
             {
-            };
+            }
 
         private:
             void initialize()
@@ -521,7 +522,7 @@ namespace velodyne
                 time_between_firings = 2.304;
                 time_half_idle       = 18.432;
                 time_total_cycle     = 110.592; // 55.296*2;
-            };
+            }
     };
 
     class HDL32ECapture : public VelodyneCapture
@@ -530,14 +531,14 @@ namespace velodyne
             HDL32ECapture() : VelodyneCapture()
             {
                 initialize();
-            };
+            }
 
             #ifdef HAVE_BOOST
             HDL32ECapture( const boost::asio::ip::address& address, const unsigned short port = 2368 ) : VelodyneCapture()
             {
                 initialize();
                 open( address, port );
-            };
+            }
             #endif
 
             #ifdef HAVE_PCAP
@@ -545,12 +546,12 @@ namespace velodyne
             {
                 initialize();
                 open( filename );
-            };
+            }
             #endif
 
             ~HDL32ECapture()
             {
-            };
+            }
 
         private:
             void initialize()
@@ -561,7 +562,7 @@ namespace velodyne
                 time_between_firings = 1.152;
                 time_half_idle       = 0.0;
                 time_total_cycle     = 46.080; 
-            };
+            }
     };
 }
 

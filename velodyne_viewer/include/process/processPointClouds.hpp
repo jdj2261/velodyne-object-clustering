@@ -31,7 +31,7 @@ public:
     //constructor
     ProcessPointClouds();
     //deconstructor
-    virtual ~ProcessPointClouds(){};
+    virtual ~ProcessPointClouds(){}
 
     void laser2pcd (std::vector<velodyne::Laser> lasers, typename pcl::PointCloud<PointT>::Ptr& cloud);
     typename pcl::PointCloud<PointT>::Ptr FilterCloud(const typename pcl::PointCloud<PointT>::Ptr& cloud, Box host_box, float filterRes, const Vect3 minPoint, const Vect3 maxPoint);

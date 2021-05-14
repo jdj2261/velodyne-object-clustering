@@ -6,7 +6,7 @@ set( CMAKE_CXX_STANDARD_REQUIRED ON )
 set( CMAKE_CXX_EXTENSIONS OFF )
 
 # Create Project
-project( sample )
+project( simple )
 add_executable( simple VelodyneCapture.h main.cpp )
 
 # Set StartUp Project

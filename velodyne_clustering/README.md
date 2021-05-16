@@ -18,10 +18,13 @@ $ cp -r test.pcap .
 $ ./velodyne_cluster
 ~~~
 
-- TODO
 
-  - make it compatible Socket or PCAP 
 
-  - Velodyne Viewer
-  - Clustering (make Box)
+## TODO
+
+**[ ]** make it compatible Socket or PCAP 
+
+**[ ]** Velodyne Viewer
+
+**[ ]** Clustering (make Box)
 

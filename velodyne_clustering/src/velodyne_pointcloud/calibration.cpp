@@ -2,7 +2,6 @@
  ** @date   2021. 05. 15
  ** @file   Velodyne 3D LIDAR data calibration classes
 */
-#pragma once
 
 #include <iostream>
 #include <fstream>

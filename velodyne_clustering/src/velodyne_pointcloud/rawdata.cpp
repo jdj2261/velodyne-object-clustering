@@ -3,7 +3,6 @@
  ** @file   Velodyne 3D LIDAR rawdata classes
 */
 
-#pragma once
 #include "velodyne_pointcloud/rawdata.h"
 #include <iostream>
 #include <fstream>

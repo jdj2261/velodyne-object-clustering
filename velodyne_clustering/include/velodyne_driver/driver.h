@@ -23,7 +23,6 @@ namespace velodyne_driver
 
     struct
     {
-      std::string frame_id;            ///< tf frame ID
       std::string model;               ///< device model name
       int    npackets;                 ///< number of packets to collect
       double rpm;                      ///< device rotation rate (RPMs)

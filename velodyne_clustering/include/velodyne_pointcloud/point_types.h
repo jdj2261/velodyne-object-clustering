@@ -17,6 +17,7 @@ namespace velodyne_pointcloud
       float y;
       float z;
       float intensity;                 ///< laser intensity reading
+      float distance;
       uint16_t azimuth;
       uint16_t ring;                      ///< laser ring number
   } ;

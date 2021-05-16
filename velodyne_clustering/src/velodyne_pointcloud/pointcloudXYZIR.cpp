@@ -2,7 +2,7 @@
  ** @date   2021. 05. 15
  ** @file   Velodyne 3D LIDAR data pointcloudXYZIR classes
 */
-#pragma once
+
 #include "velodyne_pointcloud/pointcloudXYZIR.h"
 
 namespace velodyne_pointcloud
@@ -24,6 +24,7 @@ namespace velodyne_pointcloud
     point.z = z;
     point.intensity = intensity;
     point.azimuth = azimuth;
+    point.distance = distance;
     // append this point to the cloud
     pc.push_back(point);
   }

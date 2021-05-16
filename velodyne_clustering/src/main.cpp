@@ -15,7 +15,8 @@
 #include <sys/file.h>
 #include "velodyne_driver/driver.h"
 #include "main.h"
-
+#include <chrono>
+#include <thread>
 using namespace velodyne_driver;
 
 
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
   while(true)
   {
     dvr.poll();
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 
   return 0;

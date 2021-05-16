@@ -2,7 +2,6 @@
  ** @date   2021. 05. 15
  ** @file   Velodyne 3D LIDAR data transfrom classes
 */
-#pragma once
 #include <iostream>
 #include <fstream>
 #include "velodyne_pointcloud/transform.h"
@@ -15,7 +14,7 @@ namespace velodyne_pointcloud
   {
     //std::shared_ptr<velodyne_rawdata::RawData> data_temp (new velodyne_rawdata::RawData);
     data_.reset(new velodyne_rawdata::RawData);
-    int set_up = data_->setup();
+    data_->setup();
     data_->setParameters(0.9,200,0,0);
   }
 
@@ -45,30 +44,16 @@ namespace velodyne_pointcloud
     }
 
     //for (size_t i = 0; i < 10; ++i)
-    for (size_t i = 0; i < outMsg.pc.size(); ++i)
+//    for (size_t i = 0; i < outMsg.pc.size(); ++i)
+    for (const auto& laser : outMsg.pc)
     {
-      std::cout<<"the x is "<<outMsg.pc[i].x;
-      if(i==outMsg.pc.size()-1)
-        std::cout<<""<<std::endl;
-      std::cout<<"the y is "<<outMsg.pc[i].y;
-      if(i==outMsg.pc.size()-1)
-        std::cout<<""<<std::endl;
-      std::cout<<"the z is "<<outMsg.pc[i].z;
-      if(i==outMsg.pc.size()-1)
-        std::cout<<""<<std::endl;
-      std::cout<<"the intensity is "<<outMsg.pc[i].intensity;
-      if(i==outMsg.pc.size()-1)
-        std::cout<<""<<std::endl;
-      std::cout<<"the azimuth is "<<unsigned(outMsg.pc[i].azimuth);
-      if(i==outMsg.pc.size()-1)
-        std::cout<<""<<std::endl;
-
-//      ip[i*4+0] = outMsg.pc[i].x;
-//      ip[i*4+1] = outMsg.pc[i].y;
-//      ip[i*4+2] = outMsg.pc[i].z;
-//      ip[i*4+3] = outMsg.pc[i].intensity;
-
-      //          fd_t << outMsg.pc[i].x << "," << outMsg.pc[i].y << "," << outMsg.pc[i].z << "," << outMsg.pc[i].intensity <<  "," << unsigned(outMsg.pc[i].azimuth) << ";" << std::endl;
+      std::cout << "the x is " << laser.x << std::endl;
+      std::cout << "the y is " << laser.y << std::endl;
+      std::cout << "the z is " << laser.z << std::endl;
+      std::cout << "the intensity is " << laser.intensity << std::endl;
+      std::cout << "the distance is " << laser.distance << std::endl;
+      std::cout << "the azimuth is " << unsigned(laser.azimuth) << std::endl;
+      std::cout << std::endl;
     }
     //        fd_t.close();
 

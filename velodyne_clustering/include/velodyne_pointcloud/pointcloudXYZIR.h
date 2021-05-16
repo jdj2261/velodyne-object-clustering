@@ -22,7 +22,7 @@ namespace velodyne_pointcloud
                 const float& y,
                 const float& z,
                 const u_int16_t& ring,
-                const u_int16_t& azimuth,
+                const float& azimuth,
                 const float& distance,
                 const float& intensity);
     };

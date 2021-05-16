@@ -110,6 +110,7 @@ namespace velodyne_rawdata
     float last_azimuth_diff=0;
     float azimuth_corrected_f;
     int azimuth_corrected;
+    float result_azimuth;
     float x, y, z;
     float intensity;
 
@@ -269,8 +270,8 @@ namespace velodyne_rawdata
               SQR(1 - static_cast<float>(tmp.uint)/65535)));
             intensity = (intensity < min_intensity) ? min_intensity : intensity;
             intensity = (intensity > max_intensity) ? max_intensity : intensity;
-
-            data.addPoint(x_coord, y_coord, z_coord, corrections.laser_ring, azimuth_corrected, distance, intensity);
+            result_azimuth = azimuth_corrected / 100.f;
+            data.addPoint(x_coord, y_coord, z_coord, corrections.laser_ring, result_azimuth, distance, intensity);
           }
         }
       }

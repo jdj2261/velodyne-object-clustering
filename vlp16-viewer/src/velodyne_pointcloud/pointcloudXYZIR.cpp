@@ -7,6 +7,8 @@
 
 namespace velodyne_pointcloud
 {
+
+  void PointcloudXYZIR::newLine(){}
   void PointcloudXYZIR::addPoint(const float& x,
                                  const float& y,
                                  const float& z,
@@ -18,13 +20,13 @@ namespace velodyne_pointcloud
     // convert polar coordinates to Euclidean XYZ
     velodyne_rawdata::VPoint point;
 
-    point.ring = ring;
     point.x = x;
     point.y = y;
     point.z = z;
-    point.intensity = intensity;
+    point.ring = ring;
     point.azimuth = azimuth;
     point.distance = distance;
+    point.intensity = intensity;
     // append this point to the cloud
     pc.push_back(point);
   }

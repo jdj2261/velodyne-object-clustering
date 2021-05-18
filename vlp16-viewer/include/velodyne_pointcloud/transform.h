@@ -7,6 +7,8 @@
 #include "velodyne_pointcloud/rawdata.h"
 #include <vector>
 #include <memory>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 
 namespace velodyne_pointcloud
 {
@@ -15,7 +17,8 @@ namespace velodyne_pointcloud
   public:
     Transfrom();
     ~Transfrom();
-    void processScan(const std::vector<velodyne_driver::VelodynePacket> &scan_packets);
+    void processScan(const std::vector<velodyne_driver::VelodynePacket> &scan_packets,
+                     pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
     std::shared_ptr<velodyne_rawdata::RawData> data_;
   };
 }

@@ -19,6 +19,7 @@ namespace velodyne_rawdata
         const float& azimuth,
         const float& distance,
         const float& intensity) = 0;
+    virtual void newLine() = 0;
   };
 }
 

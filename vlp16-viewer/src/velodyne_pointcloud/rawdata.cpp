@@ -87,7 +87,7 @@ namespace velodyne_rawdata
   void RawData::unpack(const velodyne_driver::VelodynePacket &pkt, DataContainerBase& data)
   {
     using velodyne_pointcloud::LaserCorrection;
-    std::cout<<"Received packet, time: " << pkt.stamp << std::endl;
+//    std::cout<<"Received packet, time: " << pkt.stamp << std::endl;
 
     /** special parsing for the VLP16 **/
     if (calibration_.num_lasers == 16)
@@ -110,7 +110,7 @@ namespace velodyne_rawdata
     float last_azimuth_diff=0;
     float azimuth_corrected_f;
     int azimuth_corrected;
-    float result_azimuth;
+//    float result_azimuth;
     float x, y, z;
     float intensity;
 
@@ -136,7 +136,7 @@ namespace velodyne_rawdata
         // some packets contain an angle overflow where azimuth_diff < 0
         if(raw_azimuth_diff < 0)//raw->blocks[block+1].rotation - raw->blocks[block].rotation < 0)
         {
-          std::cout<< "Packet containing angle overflow, first angle: " << raw->blocks[block].rotation << " second angle: " << raw->blocks[block+1].rotation<<std::endl;
+//          std::cout<< "Packet containing angle overflow, first angle: " << raw->blocks[block].rotation << " second angle: " << raw->blocks[block+1].rotation<<std::endl;
           // if last_azimuth_diff was not zero, we can assume that the velodyne's speed did not change very much and use the same difference
           if(last_azimuth_diff > 0)
             azimuth_diff = last_azimuth_diff;
@@ -149,7 +149,6 @@ namespace velodyne_rawdata
       }
       else
         azimuth_diff = last_azimuth_diff;
-
 
       for (int firing=0, k=0; firing < VLP16_FIRINGS_PER_BLOCK; firing++)
       {
@@ -270,10 +269,11 @@ namespace velodyne_rawdata
               SQR(1 - static_cast<float>(tmp.uint)/65535)));
             intensity = (intensity < min_intensity) ? min_intensity : intensity;
             intensity = (intensity > max_intensity) ? max_intensity : intensity;
-            result_azimuth = azimuth_corrected / 100.f;
-            data.addPoint(x_coord, y_coord, z_coord, corrections.laser_ring, result_azimuth, distance, intensity);
+//            result_azimuth = azimuth_corrected / 100.f; // int -> float
+            data.addPoint(x_coord, y_coord, z_coord, corrections.laser_ring, azimuth_corrected, distance, intensity);
           }
         }
+        data.newLine();
       }
     }
   }

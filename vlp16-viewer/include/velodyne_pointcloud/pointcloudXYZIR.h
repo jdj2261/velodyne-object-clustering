@@ -14,9 +14,8 @@ namespace velodyne_pointcloud
 
         velodyne_rawdata::VPointCloud pc;
         time_t t_stamp;
-
-        //PointcloudXYZIR(){}
-
+        PointcloudXYZIR(){}
+        void newLine();
         virtual void addPoint(
                 const float& x,
                 const float& y,

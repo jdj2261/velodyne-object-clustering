@@ -13,6 +13,17 @@ namespace velodyne_driver
 {
   VelodyneDriver::VelodyneDriver()
   {
+    init();
+  }
+
+  VelodyneDriver::~VelodyneDriver()
+  {
+    input_.reset();
+    trans_.reset();
+  }
+
+  void VelodyneDriver::init()
+  {
     config_.model = "VLP16";
     double packet_rate;                   // packet frequency (Hz)
     std::string model_full_name;
@@ -65,18 +76,11 @@ namespace velodyne_driver
 
     last_azimuth_ = -1;
   }
-
-  VelodyneDriver::~VelodyneDriver()
-  {
-    input_.reset();
-    trans_.reset();
-  }
-
   /** poll the device
      *
      *  @returns true unless end of file reached
      */
-  bool VelodyneDriver::poll()
+  bool VelodyneDriver::poll(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud)
   {
     // Allocate a new shared pointer for zero-copy sharing with other nodelets.
     std::vector<VelodynePacket> scan_packets;
@@ -123,12 +127,12 @@ namespace velodyne_driver
       // reading and publishing scans as fast as possible.
       scan_packets.resize(config_.npackets);
 
-      int fd_t = -1;
-      fd_t = open("test.txt",O_RDWR);
-      if(fd_t == -1)
-        std::cout<<"write failed\n"<<std::endl;
-      else
-        std::cout<<"open successfully\n"<<std::endl;
+//      int fd_t = -1;
+//      fd_t = open("test.txt",O_RDWR);
+//      if(fd_t == -1)
+//        std::cout<<"write failed\n"<<std::endl;
+//      else
+//        std::cout<<"open successfully\n"<<std::endl;
 
       for (int i = 0; i < config_.npackets; ++i)
       {
@@ -142,7 +146,7 @@ namespace velodyne_driver
         }
       }
     }
-    trans_->processScan(scan_packets);
+    trans_->processScan(scan_packets, cloud);
     return 0;
   }
 

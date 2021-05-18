@@ -17,7 +17,8 @@ namespace velodyne_driver
 
     VelodyneDriver();
     ~VelodyneDriver();
-    bool poll();
+    void init();
+    bool poll(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
 
   private:
 

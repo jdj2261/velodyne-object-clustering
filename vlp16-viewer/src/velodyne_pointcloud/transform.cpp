@@ -4,9 +4,8 @@
 */
 #include <iostream>
 #include <fstream>
-#include "velodyne_pointcloud/transform.h"
-#include "velodyne_pointcloud/pointcloudXYZIR.h"
 #include <time.h>
+#include "velodyne_pointcloud/transform.h"
 
 namespace velodyne_pointcloud
 {

@@ -5,34 +5,53 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "input.h"
 #include "velodyne_pointcloud/transform.h"
-#include <memory>
 
 namespace velodyne_driver
 {
-  class VelodyneDriver
-  {
-  public:
-
-    VelodyneDriver();
-    ~VelodyneDriver();
-    void init();
-    bool poll(pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
-
-  private:
-
-    struct
+    class VelodyneDriver
     {
-      std::string model;               ///< device model name
-      int    npackets;                 ///< number of packets to collect
-      double rpm;                      ///< device rotation rate (RPMs)
-      int cut_angle;                   ///< cutting angle in 1/100°
-      double time_offset;              ///< time in seconds added to each velodyne time stamp
-    } config_;
+    public:
+        VelodyneDriver() = default;
+        VelodyneDriver(const std::string& address,
+                       const std::string& port,
+                       const std::string& pcap,
+                       bool is_saved):
+            address_(address),
+            port_(static_cast<u_int16_t>(std::stoi(port))),
+            pcap_file_(pcap),
+            is_saved_(is_saved)
+        {
+            init();
+        }
 
-    int last_azimuth_;
-    std::shared_ptr<Input> input_;
-    std::shared_ptr<velodyne_pointcloud::Transfrom> trans_;
-  };
+        ~VelodyneDriver() noexcept
+        {
+            input_.reset();
+            trans_.reset();
+        }
+        void init();
+        bool poll(velodyne_pcl::pointcloud::Ptr &cloud);
+
+    private:
+        struct
+        {
+            std::string   model;
+            int           npackets;
+            double        rpm;
+            int           cut_angle;
+            double        time_offset;
+        } config_;
+
+        std::string address_;
+        u_int16_t port_;
+        std::string pcap_file_;
+        bool is_saved_;
+
+        int last_azimuth_;
+        std::shared_ptr<Input> input_;
+        std::shared_ptr<velodyne_pointcloud::Transfrom> trans_;
+    };
 }

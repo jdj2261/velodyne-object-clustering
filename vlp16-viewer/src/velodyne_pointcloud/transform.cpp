@@ -42,16 +42,16 @@ namespace velodyne_pointcloud
         //    for (size_t i = 0; i < outMsg.pc.size(); ++i)
         for (const auto& laser : outMsg.pc)
         {
-            if (laser.x  != 0 && laser.y  != 0 && laser.z  != 0)
+            if (laser.x != 0 && laser.y != 0 && laser.z != 0)
             {
-                //          std::cout << "the x is " << laser.x << std::endl;
-                //          std::cout << "the y is " << laser.y << std::endl;
-                //          std::cout << "the z is " << laser.z << std::endl;
-                //          std::cout << "the ring is " << laser.ring << std::endl;
-                //          std::cout << "the intensity is " << laser.intensity << std::endl;
-                //          std::cout << "the distance is " << laser.distance << std::endl;
-                //          std::cout << "the azimuth is " << laser.azimuth << std::endl;
-                //          std::cout << std::endl;
+//                std::cout << "the x is " << laser.x << std::endl;
+//                std::cout << "the y is " << laser.y << std::endl;
+//                std::cout << "the z is " << laser.z << std::endl;
+//                std::cout << "the ring is " << laser.ring << std::endl;
+//                std::cout << "the intensity is " << laser.intensity << std::endl;
+//                std::cout << "the distance is " << laser.distance << std::endl;
+//                std::cout << "the azimuth is " << laser.azimuth << std::endl;
+//                std::cout << std::endl;
 
                 point.x = laser.x;
                 point.y = laser.y;

@@ -273,7 +273,6 @@ namespace velodyne_rawdata
             data.addPoint(x_coord, y_coord, z_coord, corrections.laser_ring, azimuth_corrected, distance, intensity);
           }
         }
-        data.newLine();
       }
     }
   }

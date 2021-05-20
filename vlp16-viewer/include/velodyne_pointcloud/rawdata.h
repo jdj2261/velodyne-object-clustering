@@ -111,12 +111,9 @@ namespace velodyne_rawdata
            *           errno value for failure
            */
     int setup();
-
     void unpack(const velodyne_driver::VelodynePacket &pkt, DataContainerBase& data);
-
     void setParameters(double min_range, double max_range, double view_direction,
                        double view_width);
-
     int scansPerPacket() const;
 
     velodyne_pointcloud::Calibration calibration_;

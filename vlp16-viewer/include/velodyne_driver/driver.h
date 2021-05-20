@@ -15,16 +15,19 @@ namespace velodyne_driver
     {
     public:
         VelodyneDriver() = default;
-        VelodyneDriver(const std::string& address,
-                       const std::string& port,
-                       const std::string& pcap,
-                       bool is_saved):
-            address_(address),
-            port_(static_cast<u_int16_t>(std::stoi(port))),
-            pcap_file_(pcap),
-            is_saved_(is_saved)
+        VelodyneDriver(const std::string &address,
+                       const std::string &port,
+                       const std::string &pcap,
+                       bool is_saved)
+            : address_(address),
+              port_(static_cast<u_int16_t>(std::stoi(port))),
+              pcap_file_(pcap),
+              is_saved_(is_saved),
+              packet_rate_(754.0),
+              cut_angle_(-0.01),
+              last_azimuth_(-1)
         {
-            init();
+            init_driver();
         }
 
         ~VelodyneDriver() noexcept
@@ -32,16 +35,17 @@ namespace velodyne_driver
             input_.reset();
             trans_.reset();
         }
-        void init();
+        void init_driver();
+        void print_driver_info(const std::string &name);
         bool poll(velodyne_pcl::pointcloud::Ptr &cloud);
 
     private:
-        struct
+        struct Config
         {
             std::string   model;
-            int           npackets;
-            double        rpm;
-            int           cut_angle;
+            u_int16_t      rpm;
+            u_int16_t     npackets;
+            double        cut_angle;
             double        time_offset;
         } config_;
 
@@ -49,7 +53,8 @@ namespace velodyne_driver
         u_int16_t port_;
         std::string pcap_file_;
         bool is_saved_;
-
+        double packet_rate_;
+        double cut_angle_;
         int last_azimuth_;
         std::shared_ptr<Input> input_;
         std::shared_ptr<velodyne_pointcloud::Transfrom> trans_;

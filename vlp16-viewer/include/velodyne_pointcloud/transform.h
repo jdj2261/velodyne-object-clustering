@@ -14,13 +14,13 @@
 
 namespace velodyne_pointcloud
 {
-  class Transfrom
-  {
-  public:
-    Transfrom();
-    ~Transfrom();
-    void processScan(const std::vector<velodyne_driver::VelodynePacket> &scan_packets,
-                     velodyne_pcl::pointcloud::Ptr &cloud);
-    std::shared_ptr<velodyne_rawdata::RawData> data_;
-  };
+    class Transfrom
+    {
+    public:
+        Transfrom();
+        ~Transfrom();
+        void processScan(const std::vector<velodyne_driver::VelodynePacket> &scan_packets,
+                         velodyne_pcl::pointcloud::Ptr &cloud);
+        std::shared_ptr<velodyne_rawdata::RawData> data_;
+    };
 }

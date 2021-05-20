@@ -7,9 +7,7 @@
 
 namespace velodyne_pointcloud
 {
-
-  void PointcloudXYZIR::newLine(){}
-  void PointcloudXYZIR::addPoint(const float& x,
+  void PointcloudXYZI::addPoint(const float& x,
                                  const float& y,
                                  const float& z,
                                  const u_int16_t& ring,
@@ -28,6 +26,6 @@ namespace velodyne_pointcloud
     point.distance = distance;
     point.intensity = intensity;
     // append this point to the cloud
-    pc.push_back(point);
+    pc.emplace_back(point);
   }
 }

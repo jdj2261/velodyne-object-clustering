@@ -8,14 +8,12 @@
 
 namespace velodyne_pointcloud
 {
-    class PointcloudXYZIR : public velodyne_rawdata::DataContainerBase
+    class PointcloudXYZI : public velodyne_rawdata::DataContainerBase
     {
     public:
-
         velodyne_rawdata::VPointCloud pc;
         time_t t_stamp;
-        PointcloudXYZIR(){}
-        void newLine();
+        PointcloudXYZI(){}
         virtual void addPoint(
                 const float& x,
                 const float& y,
@@ -23,7 +21,6 @@ namespace velodyne_pointcloud
                 const u_int16_t& ring,
                 const float& azimuth,
                 const float& distance,
-                const float& intensity);
+                const float& intensity) override;
     };
-
 }  // namespace velodyne_pointcloud

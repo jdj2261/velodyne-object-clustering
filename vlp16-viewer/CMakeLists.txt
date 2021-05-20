@@ -87,14 +87,18 @@ if(Boost_FOUND OR PCAP_FOUND)
 #    target_link_libraries(VelodynePCL)
 
     # make exec file
-#    add_executable(${CMAKE_PROJECT_NAME}
-#        src/main.cpp
-#        ${SOURCE_FILES})
+    add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
 
     # Additional Dependencies
-#    target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES})
-#    target_link_libraries(${CMAKE_PROJECT_NAME} ${PCAP_LIBRARIES})
-#    target_link_libraries(${CMAKE_PROJECT_NAME} ${PCL_LIBRARIES})
+    target_link_libraries(${CMAKE_PROJECT_NAME}
+        VelodyneDriver
+        VelodynePointCloud
+        VelodynePCL
+        )
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES})
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${PCAP_LIBRARIES})
+    target_link_libraries(${CMAKE_PROJECT_NAME} ${PCL_LIBRARIES})
+
 
     # for Test
     add_executable(ViewerTest tests/viewerTest.cpp)

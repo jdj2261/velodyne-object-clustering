@@ -19,14 +19,14 @@ public:
          const std::string& port,
          const std::string& pcap,
          bool is_saved)
-        : address_{address},
-          port_{port},
-          pcap_{pcap},
-          is_saved_{is_saved},
-          rate_{0} {}
+        : address_(address),
+          port_(port),
+          pcap_(pcap),
+          is_saved_(is_saved),
+          rate_(0) {}
     ~Info() noexcept {}
 
-    bool select_info(const int& argc, char** argv)
+    bool select_info(const int &argc, char** argv)
     {
         if (pcl::console::find_argument(argc, argv, "-h") == 1)
         {
@@ -76,13 +76,12 @@ public:
 
     void print_info()
     {
-        std::cout << "*****************************" << std::endl;
+        std::cout << "******** Input Info *********" << std::endl;
         std::string result_is_saved =  (is_saved_)? "true" : "false";
         std::cout << "-ipadress : " << address_ << std::endl;
         std::cout << "-port : " << port_ << std::endl;
         std::cout << "-pcap : " << pcap_ << std::endl;
         std::cout << "-saveframes : " << result_is_saved << std::endl;
-        std::cout << "*****************************" << std::endl;
     }
 
 private:

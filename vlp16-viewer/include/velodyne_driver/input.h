@@ -18,16 +18,15 @@ namespace velodyne_driver
         time_t stamp;
     };
 
-    static uint16_t DATA_PORT_NUMBER = 2368;  // default data port
-
     /** @brief Velodyne input base class */
     class Input
     {
     public:
-        Input(uint16_t port):port_(port) {}
-        virtual ~Input() {}
-
-        virtual int getPacket(VelodynePacket *pkt, const double time_offset) = 0;
+        explicit Input() = default;
+        explicit Input(const uint16_t &port):port_(port) {}
+        virtual ~Input() noexcept {}
+        virtual int getPacket(VelodynePacket *pkt,
+                              const double &time_offset) = 0;
 
     protected:
         uint16_t port_;
@@ -36,12 +35,11 @@ namespace velodyne_driver
     class InputSocket: public Input
     {
     public:
-        InputSocket(uint16_t port);
-        virtual ~InputSocket();
-
+        explicit InputSocket() = default;
+        explicit InputSocket(const uint16_t &port);
+        virtual ~InputSocket() noexcept override;
         virtual int getPacket(VelodynePacket *pkt,
-                              const double time_offset);
-        void setDeviceIP(const std::string& ip);
+                              const double &time_offset) override;
 
     private:
         int sockfd_;
@@ -51,13 +49,13 @@ namespace velodyne_driver
     class InputPCAP: public Input
     {
     public:
-        InputPCAP(uint16_t port = DATA_PORT_NUMBER,
-                  double packet_rate = 0.0,
-                  std::string filename = "");
-        virtual ~InputPCAP();
+        InputPCAP() = default;
+        InputPCAP(const uint16_t &port,
+                  const double &packet_rate,
+                  const std::string &filename);
+        virtual ~InputPCAP() noexcept override;
         virtual int getPacket(VelodynePacket *pkt,
-                              const double time_offset);
-        void setDeviceIP(const std::string& ip);
+                              const double &time_offset) override;
 
     private:
         double packet_rate_;

@@ -1,4 +1,4 @@
-# velodyne clustering
+# vlp16-viewer
 
 This repository can be used in an environment where ROS is not installed.
 

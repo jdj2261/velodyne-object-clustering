@@ -13,8 +13,6 @@
 namespace velodyne_pcl
 {
     using visualizer = pcl::visualization::PCLVisualizer;
-    using ptr_visualizer = visualizer::Ptr;
-
     using PointXYZI = pcl::PointXYZI;
     using pointcloud = pcl::PointCloud<PointXYZI>;
 
@@ -36,7 +34,7 @@ namespace velodyne_pcl
             distance_(distance){}
         ~Viewer() noexcept{}
 
-        ptr_visualizer setCameraAngle();
+        visualizer::Ptr setCameraAngle();
         void printUsage(const char* progName);
 
     private:

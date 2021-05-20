@@ -2,9 +2,9 @@
 
 namespace velodyne_pcl
 {
-    ptr_visualizer Viewer::setCameraAngle()
+    visualizer::Ptr Viewer::setCameraAngle()
     {
-        ptr_visualizer viewer(new visualizer(viewer_name_));
+        visualizer::Ptr viewer(new visualizer(viewer_name_));
         viewer->setBackgroundColor (0, 0, 0);
         viewer->initCameraParameters ();
         switch(setAngle_)

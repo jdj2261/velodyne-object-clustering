@@ -21,7 +21,7 @@ int main(int argc, char** argv)
                                              info->get_is_saved());
 
     std::shared_ptr<Viewer> viewer = std::make_shared<Viewer>(CameraAngle::TopDown, 30);
-    ptr_visualizer pcl_viewer;
+    visualizer::Ptr pcl_viewer;
     pcl_viewer = viewer->setCameraAngle();
 
     while(!pcl_viewer->wasStopped())
@@ -38,6 +38,5 @@ int main(int argc, char** argv)
         pcl_viewer->removeAllShapes();
         pcl_viewer->removeText3D();
     }
-
     return 0;
 }

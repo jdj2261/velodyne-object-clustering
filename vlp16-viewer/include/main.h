@@ -68,30 +68,11 @@ public:
                   << "\n\n";
     }
 
-    std::string get_address() const
-    {
-        return address_;
-    }
-
-    std::string get_port() const
-    {
-        return port_;
-    }
-
-    std::string get_pcap() const
-    {
-        return pcap_;
-    }
-
-    bool get_is_saved() const
-    {
-        return is_saved_;
-    }
-
-    int get_rate() const
-    {
-        return rate_;
-    }
+    std::string get_address() const { return address_; }
+    std::string get_port() const { return port_; }
+    std::string get_pcap() const { return pcap_; }
+    bool get_is_saved() const { return is_saved_; }
+    int get_rate() const { return rate_; }
 
     void print_info()
     {

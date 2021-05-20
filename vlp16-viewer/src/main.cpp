@@ -8,6 +8,23 @@
 using namespace velodyne_pcl;
 using namespace velodyne_driver;
 
+void onInit(std::shared_ptr<VelodyneDriver> dvr,
+            const int &rate,
+            pointcloud::Ptr &out_cloud)
+{
+    volatile bool running_;
+    while(true)
+    {
+        pointcloud::Ptr cloud(new pointcloud);
+        running_ = dvr->poll(cloud);
+        if (!running_)
+            std::cout << "fail" << std::endl;
+        running_ = false;
+        out_cloud = cloud;
+        std::this_thread::sleep_for(std::chrono::milliseconds(rate));
+    }
+}
+
 int main(int argc, char** argv)
 {
     std::shared_ptr<Info> info = std::make_shared<Info>("", "2368", "", false);
@@ -24,13 +41,14 @@ int main(int argc, char** argv)
     visualizer::Ptr pcl_viewer;
     pcl_viewer = viewer->setCameraAngle();
 
-    while(!pcl_viewer->wasStopped())
+    pointcloud::Ptr cloud(new pointcloud);
+    std::thread t1(onInit, dvr, info->get_rate(), std::ref(cloud));
+
+    while(true)
     {
-        pointcloud::Ptr cloud(new pointcloud);
 //        auto startTime = std::chrono::high_resolution_clock::now();
-        dvr->poll(cloud);
         pcl_viewer->addPointCloud<PointXYZI>(cloud, "test");
-        pcl_viewer->spinOnce(info->get_rate());
+        pcl_viewer->spinOnce();
 //        auto endTime = std::chrono::high_resolution_clock::now();
 //        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 //        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;

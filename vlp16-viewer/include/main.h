@@ -5,6 +5,7 @@
 #pragma once
 #include <chrono>
 #include <thread>
+#include <future>
 #include <memory>
 #include <iostream>
 #include <string>
@@ -82,6 +83,7 @@ public:
         std::cout << "-port : " << port_ << std::endl;
         std::cout << "-pcap : " << pcap_ << std::endl;
         std::cout << "-saveframes : " << result_is_saved << std::endl;
+        std::cout << "-rate : " << rate_ << std::endl;
     }
 
 private:

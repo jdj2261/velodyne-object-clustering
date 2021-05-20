@@ -166,12 +166,12 @@ int main(int argc, char *argv[])
     const unsigned short ip_port = std::stoi(port);
 
     std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pointProcessorI = std::make_shared<ProcessPointClouds<pcl::PointXYZI>>();
-    //velodyne::VLP16Capture capture( address, ip_port);
-    //velodyne::HDL32ECapture capture( address, port );
+    velodyne::VLP16Capture capture( address, ip_port);
+//    velodyne::HDL32ECapture capture( address, port );
 
     // Open VelodyneCapture that retrieve from PCAP
     // velodyne::VLP16Capture capture(pcap);
-    velodyne::HDL32ECapture capture( pcap) ;
+//    velodyne::HDL32ECapture capture( pcap) ;
 
     if (!capture.isOpen())
     {

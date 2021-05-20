@@ -36,7 +36,7 @@ namespace velodyne_driver
     sockfd_ = -1;
 
     // connect to Velodyne UDP port
-    std::cout << "Opening UDP socket: port " << port;
+    std::cout << "Opening UDP socket: port " << port << std::endl;
     sockfd_ = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd_ == -1)
     {
@@ -112,7 +112,7 @@ namespace velodyne_driver
                                 packet_size,  0,
                                 (sockaddr*) &sender_address,
                                 &sender_address_len);
-      std::cout<<"number of bytes received"<<nbytes<<std::endl;
+//      std::cout<<"number of bytes received"<<nbytes<<std::endl;
 
       if (nbytes < 0)
       {

@@ -28,9 +28,9 @@ void onInit(std::shared_ptr<VelodyneDriver> dvr,
 int main(int argc, char** argv)
 {
     std::shared_ptr<Info> info = std::make_shared<Info>("", "2368", "", false);
-    if (info->select_info(argc, argv) != true)
+    if (info->selectInfo(argc, argv) != true)
         return 0;
-    info->print_info();
+    info->printInfo();
     std::shared_ptr<VelodyneDriver> dvr =
             std::make_shared<VelodyneDriver>(info->get_address(),
                                              info->get_port(),
@@ -47,8 +47,10 @@ int main(int argc, char** argv)
     while(true)
     {
 //        auto startTime = std::chrono::high_resolution_clock::now();
+        Timer timer;
         pcl_viewer->addPointCloud<PointXYZI>(cloud, "test");
         pcl_viewer->spinOnce();
+        timer.elapsed();
 //        auto endTime = std::chrono::high_resolution_clock::now();
 //        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
 //        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;

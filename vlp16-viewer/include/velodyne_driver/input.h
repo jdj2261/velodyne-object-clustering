@@ -37,7 +37,7 @@ namespace velodyne_driver
     public:
         explicit InputSocket() = default;
         explicit InputSocket(const uint16_t &port);
-        virtual ~InputSocket() noexcept override;
+        ~InputSocket() noexcept override;
         virtual int getPacket(VelodynePacket *pkt,
                               const double &time_offset) override;
 
@@ -53,7 +53,7 @@ namespace velodyne_driver
         InputPCAP(const uint16_t &port,
                   const double &packet_rate,
                   const std::string &filename);
-        virtual ~InputPCAP() noexcept override;
+        ~InputPCAP() noexcept override;
         virtual int getPacket(VelodynePacket *pkt,
                               const double &time_offset) override;
 

@@ -11,6 +11,7 @@
 #include <string>
 #include "velodyne_driver/driver.h"
 #include "velodyne_pcl/viewer.h"
+#include "velodyne_pcl/timer.h"
 
 class Info
 {
@@ -27,7 +28,7 @@ public:
           rate_(0) {}
     ~Info() noexcept {}
 
-    bool select_info(const int &argc, char** argv)
+    bool selectInfo(const int &argc, char** argv)
     {
         if (pcl::console::find_argument(argc, argv, "-h") == 1)
         {
@@ -75,7 +76,7 @@ public:
     bool get_is_saved() const { return is_saved_; }
     int get_rate() const { return rate_; }
 
-    void print_info()
+    void printInfo()
     {
         std::cout << "******** Input Info *********" << std::endl;
         std::string result_is_saved =  (is_saved_)? "true" : "false";

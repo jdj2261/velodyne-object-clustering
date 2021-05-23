@@ -50,14 +50,14 @@ if(Boost_FOUND OR PCAP_FOUND)
     link_directories(${Boost_USE_MULTITHREADED})
     link_directories(${PCL_LIBRARY_DIRS})
 
-    file(GLOB SOURCE_FILES
-        include/*.h
-        include/velodyne_driver/*.h
-        include/velodyne_pointcloud/*.h
-        include/velodyne_pcl/*.h
-        src/velodyne_driver/*.cpp
-        src/velodyne_pointcloud/*.cpp
-        src/velodyne_pcl/*.cpp)
+#    file(GLOB SOURCE_FILES
+#        include/*.h
+#        include/velodyne_driver/*.h
+#        include/velodyne_pointcloud/*.h
+#        include/velodyne_pcl/*.h
+#        src/velodyne_driver/*.cpp
+#        src/velodyne_pointcloud/*.cpp
+#        src/velodyne_pcl/*.cpp)
 
     # add Libraries
     add_library(VelodyneDriver SHARED
@@ -82,6 +82,7 @@ if(Boost_FOUND OR PCAP_FOUND)
 
     add_library(VelodynePCL SHARED
         include/velodyne_pcl/viewer.h
+        include/velodyne_pcl/timer.h
         src/velodyne_pcl/viewer.cpp)
 
 #    target_link_libraries(VelodynePCL)

@@ -13,7 +13,7 @@ void onInit(std::shared_ptr<VelodyneDriver> dvr,
             pointcloud::Ptr &out_cloud)
 {
     volatile bool running_;
-    while(true)
+    while (true)
     {
         pointcloud::Ptr cloud(new pointcloud);
         running_ = dvr->poll(cloud);
@@ -28,9 +28,9 @@ void onInit(std::shared_ptr<VelodyneDriver> dvr,
 int main(int argc, char** argv)
 {
     std::shared_ptr<Info> info = std::make_shared<Info>("", "2368", "", false);
-    if (info->select_info(argc, argv) != true)
+    if (info->selectInfo(argc, argv) != true)
         return 0;
-    info->print_info();
+    info->printInfo();
     std::shared_ptr<VelodyneDriver> dvr =
             std::make_shared<VelodyneDriver>(info->get_address(),
                                              info->get_port(),
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     pointcloud::Ptr cloud(new pointcloud);
     std::thread t1(onInit, dvr, info->get_rate(), std::ref(cloud));
 
-    while(true)
+    while (true)
     {
 //        auto startTime = std::chrono::high_resolution_clock::now();
         pcl_viewer->addPointCloud<PointXYZI>(cloud, "test");

@@ -65,5 +65,5 @@ $ ./renderTest or ./renderTest -pcap test.pcap
 
 **[O]** Clustering (make Box)
 
-**[   ]** MultiThreding 
+**[ - ]** MultiThreading 
 

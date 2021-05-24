@@ -42,26 +42,19 @@ namespace velodyne_pointcloud
         //    for (size_t i = 0; i < outMsg.pc.size(); ++i)
         for (const auto& laser : outMsg.pc)
         {
-            if (laser.x != 0 && laser.y != 0 && laser.z != 0)
-            {
-//                std::cout << "the x is " << laser.x << std::endl;
-//                std::cout << "the y is " << laser.y << std::endl;
-//                std::cout << "the z is " << laser.z << std::endl;
-//                std::cout << "the ring is " << laser.ring << std::endl;
-//                std::cout << "the intensity is " << laser.intensity << std::endl;
-//                std::cout << "the distance is " << laser.distance << std::endl;
-//                std::cout << "the azimuth is " << laser.azimuth << std::endl;
-//                std::cout << std::endl;
+            if ( laser.x < 2.0f &&
+                 laser.y < 2.0f )
+                continue;
 
-                point.x = laser.x;
-                point.y = laser.y;
-                point.z = laser.z;
-                point.intensity = laser.intensity;
+            point.x = laser.x;
+            point.y = laser.y;
+            point.z = laser.z;
+            point.intensity = laser.intensity;
 
-                cloud->push_back(point);
-            }
+            cloud->push_back(point);
+
         }
-        cloud->width = static_cast<int>(cloud->points.size());
+        cloud->width = static_cast<uint32_t>(cloud->points.size());
         //        cout << "Number of lasers:" << lasers.size() << endl;
         cloud->height = 1;
         cloud->points.resize (cloud->width * cloud->height);

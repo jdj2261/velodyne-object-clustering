@@ -39,7 +39,7 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
 
     Box host_box = {-1.0, -1.7, -1.5, 1.0, 1.7, -0.5};
 
-//    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
+    //    renderPointCloud(viewer, input_cloud, "test", Color(1,1,1));
     auto filter_cloud = pcd_processor->FilterCloud(transformed_cloud, host_box, kFilterResolution, MinPoint, MaxPoint);
 
     renderPointCloud(viewer, filter_cloud, "FilteredCloud", Color(1,0,0));
@@ -70,14 +70,14 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
     constexpr float kBBoxBound = 0.75;
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    #pragma omp parallel for
+#pragma omp parallel for
     {
         for(const auto& cluster : cloud_clusters)
         {
-//            std::cout << "cluster size ";
-//            pcd_processor->numPoints(cluster);
+            //            std::cout << "cluster size ";
+            //            pcd_processor->numPoints(cluster);
 
-    //            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
+            //            renderPointCloud(viewer, cluster, "ObstacleCloud" + std::to_string(cluster_ID), colors[cluster_ID % num_of_colors]);
 
             pcl::PointXYZI minPoint, maxPoint;
             pcl::getMinMax3D(*cluster, minPoint, maxPoint);
@@ -91,10 +91,10 @@ void makeBox(pcl::visualization::PCLVisualizer::Ptr& viewer,  std::shared_ptr<Pr
             if (cluster->points.size() >= kMinSize )
             {
                 renderBox(viewer, box, cluster_ID);
-//                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
+                //                viewer->addText3D(std::to_string((int)abs(test_point.y)), test_point, 1.0, 1.0, 1.0, 1.0, std::to_string(cluster_ID));
             }
 
-            //        cout << cluster_ID << endl;
+            cout << cluster_ID << endl;
             cluster_ID++;
         }
 
@@ -118,10 +118,10 @@ void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr &vi
 
     switch(setAngle)
     {
-        case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
-        case TopDown : viewer->setCameraPosition(0, -distance, distance, 0, 2, 1); break;
-        case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
-        case FPS: viewer->setCameraPosition(-1, 1, 0, 0, 0, 10);
+    case XY : viewer->setCameraPosition(-distance, -distance, distance, 1, 1, 0); break;
+    case TopDown : viewer->setCameraPosition(0, -distance, distance, 0, 2, 1); break;
+    case Side : viewer->setCameraPosition(0, -distance, 0, 0, 0, 1); break;
+    case FPS: viewer->setCameraPosition(-1, 1, 0, 0, 0, 10);
     }
 
     if(setAngle!=FPS)
@@ -166,12 +166,12 @@ int main(int argc, char *argv[])
     const unsigned short ip_port = std::stoi(port);
 
     std::shared_ptr<ProcessPointClouds<pcl::PointXYZI>> pointProcessorI = std::make_shared<ProcessPointClouds<pcl::PointXYZI>>();
-    velodyne::VLP16Capture capture( address, ip_port);
-//    velodyne::HDL32ECapture capture( address, port );
+    // velodyne::VLP16Capture capture( address, ip_port);
+    //    velodyne::HDL32ECapture capture( address, port );
 
     // Open VelodyneCapture that retrieve from PCAP
-    // velodyne::VLP16Capture capture(pcap);
-//    velodyne::HDL32ECapture capture( pcap) ;
+    velodyne::VLP16Capture capture(pcap);
+    //    velodyne::HDL32ECapture capture( pcap) ;
 
     if (!capture.isOpen())
     {
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
     while (!pcl_viewer->wasStopped())
     {
-//        auto startTime = std::chrono::steady_clock::now();
+        //        auto startTime = std::chrono::steady_clock::now();
 
         pcl_viewer->removeAllPointClouds();
         pcl_viewer->removeAllShapes();
@@ -203,22 +203,22 @@ int main(int argc, char *argv[])
         else
             pointProcessorI->laser2pcd(lasers, cloud);
 
-//        std::cout << "cloud size ";
-//        std::cout << cloud->points.size() << std::endl;
+        //        std::cout << "cloud size ";
+        //        std::cout << cloud->points.size() << std::endl;
 
         makeBox(pcl_viewer, pointProcessorI, cloud);
 
-//        if (lasers.size() == 0)
-//        {
-//          std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-//          break;
-//        }
+        //        if (lasers.size() == 0)
+        //        {
+        //          std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+        //          break;
+        //        }
 
 
         pcl_viewer->spinOnce();
-//        auto endTime = std::chrono::steady_clock::now();
-//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-//        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
+        //        auto endTime = std::chrono::steady_clock::now();
+        //        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+        //        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
     }
 
     cout << "finished.." << endl;

@@ -8,7 +8,7 @@
 using namespace velodyne_pcl;
 using namespace velodyne_driver;
 
-void onInit(std::shared_ptr<VelodyneDriver> dvr,
+[[noreturn]] void onInit(std::shared_ptr<VelodyneDriver> dvr,
             const int &rate,
             pointcloud::Ptr &out_cloud)
 {
@@ -27,7 +27,7 @@ void onInit(std::shared_ptr<VelodyneDriver> dvr,
 
 int main(int argc, char** argv)
 {
-    std::shared_ptr<Info> info = std::make_shared<Info>("", "2368", "", false);
+    std::shared_ptr<Info> info = std::make_shared<Info>("", "", "", false);
     if (info->selectInfo(argc, argv) != true)
         return 0;
     info->printInfo();
@@ -46,14 +46,10 @@ int main(int argc, char** argv)
 
     while(true)
     {
-//        auto startTime = std::chrono::high_resolution_clock::now();
         Timer timer;
         pcl_viewer->addPointCloud<PointXYZI>(cloud, "test");
         pcl_viewer->spinOnce();
-        timer.elapsed();
-//        auto endTime = std::chrono::high_resolution_clock::now();
-//        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-//        std::cout << "Main " << elapsedTime.count() << " milliseconds" << std::endl;
+//        timer.elapsed();
         pcl_viewer->removeAllPointClouds();
         pcl_viewer->removeAllShapes();
         pcl_viewer->removeText3D();

@@ -7,8 +7,10 @@
 #include <thread>
 #include <future>
 #include <memory>
+#include <atomic>
 #include <iostream>
 #include <string>
+#include <functional>
 #include "velodyne_driver/driver.h"
 #include "velodyne_pcl/viewer.h"
 #include "velodyne_pcl/timer.h"
@@ -44,6 +46,8 @@ public:
 
         if(pcl::console::find_argument(argc, argv, "-port") == 1)
             pcl::console::parse_argument(argc, argv, "-port", port_);
+        else
+            port_ = "2368";
 
         if (pcl::console::find_argument(argc, argv, "-ip") == 1)
             pcl::console::parse_argument(argc, argv, "-ip", address_);

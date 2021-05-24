@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 
 # Create Project
 project(vlp16-viewer)
-add_definitions("-Wall -Wextra -std=c++11")
+add_definitions("-Wall -Wextra -std=c++17")
 
-# Require c++11
+# Require c++14
 set(CMake_CXX_COMPILER g++)
-set(CMake_CXX_STANDARD 11)
-set(CMake_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(Boost_USE_STATIC_LIBS OFF)
@@ -31,11 +31,11 @@ set(HAVE_PCAP)
 if(PCAP_FOUND)
     set(HAVE_PCAP "-DHAVE_PCAP")
 endif()
-
-# Set Properties
-if(Boost_FOUND OR PCAP_FOUND)
     # Add_Definitions
     add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+
+    # Set Properties
+    if(Boost_FOUND OR PCAP_FOUND)
     add_definitions(${HAVE_BOOST})
     add_definitions(${HAVE_PCAP})
     add_definitions(${PCL_DEFINITIONS})
@@ -84,8 +84,14 @@ if(Boost_FOUND OR PCAP_FOUND)
         include/velodyne_pcl/viewer.h
         include/velodyne_pcl/timer.h
         src/velodyne_pcl/viewer.cpp)
+    target_link_libraries(VelodynePCL)
 
-#    target_link_libraries(VelodynePCL)
+    add_library(VelodyneCluster SHARED
+        include/velodyne_cluster/process.h
+        include/velodyne_cluster/vector.h
+        src/velodyne_cluster/process.cpp)
+
+    target_link_libraries(VelodyneCluster)
 
     # make exec file
     add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
@@ -103,6 +109,7 @@ if(Boost_FOUND OR PCAP_FOUND)
 
     # for Test
     add_executable(ViewerTest tests/viewerTest.cpp)
+
     target_link_libraries(ViewerTest
         VelodyneDriver
         VelodynePointCloud
@@ -115,6 +122,22 @@ if(Boost_FOUND OR PCAP_FOUND)
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY
         "${CMAKE_BINARY_DIR}/tests")
+
+    add_executable(renderTest tests/renderTest.cpp)
+    target_link_libraries(renderTest
+        VelodyneDriver
+        VelodynePointCloud
+        VelodynePCL
+        VelodyneCluster
+        )
+    target_link_libraries(renderTest ${Boost_LIBRARIES})
+    target_link_libraries(renderTest ${PCAP_LIBRARIES})
+    target_link_libraries(renderTest ${PCL_LIBRARIES})
+    set_target_properties(renderTest
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_BINARY_DIR}/tests")
+
 else()
     message( WARNING "This project need at least either Boost or PCAP Lib.")
 endif()

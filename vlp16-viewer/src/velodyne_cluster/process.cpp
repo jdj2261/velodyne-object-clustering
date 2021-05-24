@@ -25,27 +25,10 @@ namespace velodyne_cluster
         pcl::PassThrough<PointXYZI> pass;
         pass.setInputCloud(input_cloud);
 
-//        pass.setFilterFieldName ("x");
-//        pass.setFilterLimits (host_box.x_min, host_box.x_max);   // -2m ~ 2m
-//        pass.setFilterLimitsNegative (true);
-//        pass.filter (*filtered_cloud);
-
-//        pass.setInputCloud (filtered_cloud);
-//        pass.setFilterFieldName ("y");
-//        pass.setFilterLimits (host_box.y_min, host_box.y_max);  // 0 ~ 10m
-//        pass.setFilterLimitsNegative (true);
-//        pass.filter (*filtered_cloud);
-
         pass.setFilterFieldName ("x");
         pass.setFilterLimits (minPoint.getX(), maxPoint.getX());   // -2m ~ 2m
         pass.setFilterLimitsNegative (false);
         pass.filter (*filtered_cloud);
-
-//        pass.setInputCloud (filtered_cloud);
-//        pass.setFilterFieldName ("y");
-//        pass.setFilterLimits (host_box.y_min, host_box.y_max);  // 0 ~ 10m
-//        pass.setFilterLimitsNegative (true);
-//        pass.filter (*filtered_cloud);
 
         pass.setInputCloud (filtered_cloud);
         pass.setFilterFieldName ("y");

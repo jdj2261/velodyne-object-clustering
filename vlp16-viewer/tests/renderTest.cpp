@@ -81,7 +81,6 @@ void makeBox(std::shared_ptr<Viewer> viewer,
 
 int main(int argc, char** argv)
 {
-
     std::shared_ptr<Info> info = std::make_shared<Info>("", "", "", false);
     if (info->selectInfo(argc, argv) != true)
         return 0;
@@ -104,7 +103,7 @@ int main(int argc, char** argv)
     while(!pcl_viewer->wasStopped())
     {
         pointcloud::Ptr cloud(new pointcloud);
-        std::unique_ptr<Timer> timer = std::make_unique<Timer>("filter_cloud");
+//        std::unique_ptr<Timer> timer = std::make_unique<Timer>("filter_cloud");
         bool running_ = dvr->poll(cloud);
         do_filter(processor, cloud, filter_cloud);
         do_segmentation(processor, filter_cloud, segment_cloud);
@@ -113,12 +112,12 @@ int main(int argc, char** argv)
         viewer->viewPointCloud(pcl_viewer, segment_cloud.first, "object", Color(1.0, 0.0, 0.0));
         viewer->viewPointCloud(pcl_viewer, segment_cloud.second, "plane", Color(0.0, 1.0, 0.0));
 
-        // TODO -> Threaddo_filter
+        // TODO -> Thread do_filter
         makeBox(viewer, pcl_viewer, processor, segment_cloud.first);
         if (!running_)
             std::cout << "failed" << std::endl;
 
-        timer->elapsed();
+//        timer->elapsed();
 
         pcl_viewer->spinOnce(info->get_rate());
         pcl_viewer->removeAllPointClouds();

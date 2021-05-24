@@ -4,9 +4,9 @@ cmake_minimum_required(VERSION 3.10)
 project(vlp16-viewer)
 add_definitions("-Wall -Wextra -std=c++17")
 
-# Require c++14
+# Require c++17
 set(CMake_CXX_COMPILER g++)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

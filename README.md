@@ -1,30 +1,38 @@
-Velodyne-clustring-example
+velodyne-object-clustering
 ===============
 
-VelodyneCapture is the general capture class to retrieve the laser data from Velodyne sensors using Boost.Asio and PCAP.  
-VelodyneCapture will be able to retrieve lasers infomation about azimuth, vertical and distance that capture at one rotation or a single data packet.  
-This class supports direct capture form Velodyne sensors, or capture from PCAP files.  
-( This class only supports VLP-16 and HDL-32E sensor, it does not support Dual Return mode. )  
+This package is that allows you to view the data of velodyne vlp-16 sensor using pcl library in ubuntu 18.04 environment. In addition, you can check the object clustering algorithm and results.
 
 
-Environment
+Environments
 -----------
-If direct capture from sensors is desired, VelodyneCapture requires Boost.Asio and its dependent libraries ( Boost.System, Boost.Date_Time, Boost.Regex ).  
-Please define <code>HAVE_BOOST</code> in preprocessor.  
-* Boost.Asio  
-If capture from PCAP files is instead desired, VelodyneCapture requires PCAP.  
-Please define <code>HAVE_PCAP</code> in preprocessor.  
-* libpcap ( or WinPCAP )  
+* ubuntu 18.04
+* g++ 8.4.0
+* CMake 3.10
+* pcl 1.7
 
 
-Sample
+Components
 ------
-This repository has two sample programs.  
+This repository has three sample programs.  
 
-* velodyne_viewer  
-  This sample program displays data on a point cloud viewer.  
-  This sample program depends on the above libraries ( Boost.Asio or libpcap ( or WinPCAP ) ) of VelodyneCapture class.  
+- simple
 
+  This program displays data on standard output using VelodyneCapture class.
 
-To do
-* UKF
+- velodyne_viewer
+
+  It is an object detection program created based on the above code.
+
+- vlp16-viewer
+
+  It is an object detection program based on the ROS Velodyne driver package.
+
+## TODO
+
+**[O]** Velodyne Viewer
+
+**[O]** Clustering (make Box)
+
+**[   ]** UKF Algorithm
+

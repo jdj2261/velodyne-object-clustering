@@ -42,8 +42,9 @@ namespace velodyne_pointcloud
         //    for (size_t i = 0; i < outMsg.pc.size(); ++i)
         for (const auto& laser : outMsg.pc)
         {
-            if ( laser.x < 2.0f &&
-                 laser.y < 2.0f )
+            // TODO min max settings
+            if ( (laser.x < 2.0f && laser.x > -2.0f) &&
+                 (laser.y < 2.0f && laser.y > -2.0f))
                 continue;
 
             point.x = laser.x;
@@ -52,7 +53,6 @@ namespace velodyne_pointcloud
             point.intensity = laser.intensity;
 
             cloud->push_back(point);
-
         }
         cloud->width = static_cast<uint32_t>(cloud->points.size());
         //        cout << "Number of lasers:" << lasers.size() << endl;
@@ -61,5 +61,4 @@ namespace velodyne_pointcloud
         cloud->is_dense = true;
         //    std::cout<< "Publishing " << scanMsg.size() * data_->scansPerPacket() << " Velodyne points, time: " << asctime(gmtime(&outMsg.t_stamp))<<std::endl;
     }
-
 }

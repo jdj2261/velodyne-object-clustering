@@ -43,7 +43,7 @@ This is an example of clustering with the same pcap file as the example above.
 
 The picture below was taken at Sejong City Central Park. I got the vlp-16 pcap file from here.
 
-<left><img src="doc/sejong.jpg", style="zoom: 10%"></left>
+<left><img src="doc/sejong.jpg" style="zoom: 10%"></left>
 
 - cluster example
 
